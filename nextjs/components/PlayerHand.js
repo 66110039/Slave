@@ -20,6 +20,11 @@ const PlayerHand = ({ index, hand, currentPlayer, onSurrender, onPlayCards }) =>
         }
     };
 
+    // Check if it's the current player's turn
+    if (index !== currentPlayer) {
+        return null; // Hide hand if not current player
+    }
+
     return (
         <div>
             <h3>Player {index + 1} Hand:</h3>
@@ -33,16 +38,14 @@ const PlayerHand = ({ index, hand, currentPlayer, onSurrender, onPlayCards }) =>
                             margin: '5px'
                         }}
                     >
-                        {card}
+                        <img src={`/cards/${card}.png`} alt={card} style={{ width: '100px', height: '150px' }} />
                     </button>
                 ))}
             </div>
-            {index === currentPlayer && (
-                <div>
-                    <button onClick={handlePlay}>Play Selected Cards</button>
-                    <button onClick={onSurrender}>Surrender</button>
-                </div>
-            )}
+            <div>
+                <button onClick={handlePlay}>Play Selected Cards</button>
+                <button onClick={onSurrender}>Surrender</button>
+            </div>
         </div>
     );
 };
