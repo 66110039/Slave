@@ -8,11 +8,11 @@ import {
   MenuItem,
   Box,
   ListItemIcon,
+  IconButton,
 } from "@mui/material";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import FunctionsIcon from "@mui/icons-material/Functions";
-import Divider from "@mui/material/Divider";
 import PersonIcon from "@mui/icons-material/Person";
 import useBearStore from "@/store/useBearStore";
 
@@ -22,53 +22,44 @@ const NavigationLayout = ({ children }) => {
 
   return (
     <>
-      <AppBar position="sticky" sx={{ backgroundColor: "#ff5e15" }}>
+      <AppBar position="sticky" sx={{ backgroundColor: "#6C9075" }}>
         <Toolbar>
-          <Link href={"/"}>
-            <FunctionsIcon sx={{ color: "#ffffff" }} fontSize="large" />
-          </Link>
+          <IconButton
+            onClick={() => router.push('/')}
+            sx={{ color: "#ffffff" }}
+          >
+            <FunctionsIcon fontSize="large" />
+          </IconButton>
           <Typography
-            variant="body1"
+            variant="h6"
             sx={{
+              flexGrow: 1,
               fontSize: "22px",
               fontWeight: 500,
               color: "#ffffff",
-              padding: "0 10px",
               fontFamily: "Prompt",
-            }}>
+            }}
+          >
             {appName}
           </Typography>
-          <NavigationLink href="/page1" label="Page1" />
-          <div style={{ flexGrow: 1 }} />
           <Button
-            color="#ffffff"
-            onClick={() => {
-              router.push("/page2");
-            }}>
-            <PersonIcon />
+            color="inherit"
+            onClick={() => router.push("/register")}
+            sx={{ textTransform: 'none', color: '#ffffff', marginRight: 1 }}
+          >
+            Register
+          </Button>
+          <Button
+            color="inherit"
+            onClick={() => router.push("/login")}
+            sx={{ textTransform: 'none', color: '#ffffff' }}
+          >
+            Login
           </Button>
         </Toolbar>
       </AppBar>
       <main>{children}</main>
     </>
-  );
-};
-
-const NavigationLink = ({ href, label }) => {
-  return (
-    <Link href={href} style={{ textDecoration: "none" }}>
-      <Typography
-        variant="body1"
-        sx={{
-          fontSize: "14px",
-          fontWeight: 500,
-          // textTransform: "uppercase",
-          color: "#fff",
-          padding: "0 10px", // Add padding on left and right
-        }}>
-        {label}
-      </Typography>{" "}
-    </Link>
   );
 };
 
