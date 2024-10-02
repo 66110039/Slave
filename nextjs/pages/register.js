@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import { Box, Typography, TextField, Button, Link } from "@mui/material";
+import { Box, Typography, TextField, Button } from "@mui/material";
 
 export default function Register() {
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");  // State for the email
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleRegister = () => {
-    // Implement register logic here
+    // Implement register logic here, including validation and backend interaction
   };
 
   return (
@@ -60,11 +61,17 @@ export default function Register() {
           margin="normal"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              borderRadius: "30px",
-            },
-          }}
+          sx={{ "& .MuiOutlinedInput-root": { borderRadius: "30px" } }}
+        />
+        <TextField
+          label="EMAIL"
+          type="email"
+          variant="outlined"
+          fullWidth
+          margin="normal"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          sx={{ "& .MuiOutlinedInput-root": { borderRadius: "30px" } }}
         />
         <TextField
           label="PASSWORD"
@@ -74,11 +81,7 @@ export default function Register() {
           margin="normal"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              borderRadius: "30px",
-            },
-          }}
+          sx={{ "& .MuiOutlinedInput-root": { borderRadius: "30px" } }}
         />
         <TextField
           label="CONFIRM PASSWORD"
@@ -88,11 +91,7 @@ export default function Register() {
           margin="normal"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              borderRadius: "30px",
-            },
-          }}
+          sx={{ "& .MuiOutlinedInput-root": { borderRadius: "30px" } }}
         />
         <Button
           variant="contained"
