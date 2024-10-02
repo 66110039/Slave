@@ -1,3 +1,5 @@
+// pages/admin.js
+
 import React from 'react';
 import { Box, Typography, Grid, Paper } from '@mui/material';
 
@@ -16,21 +18,22 @@ const leaderboardData = [
   { player: 'Player5', wins: 30 },
 ];
 
-const DashboardPage = () => {
+const AdminPage = () => {
   return (
     <Box
       sx={{
         padding: 4,
         backgroundColor: '#f9f9f9',
-        height: '100vh',
+        minHeight: '100vh',
       }}
     >
-      <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold' }}>
-        Dashboard
+      {/* Header Section */}
+      <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold', color: '#6C9075' }}>
+        Admin Dashboard
       </Typography>
 
+      {/* Statistics Section */}
       <Grid container spacing={4}>
-        {/* Statistics Cards */}
         {statisticsData.map((stat) => (
           <Grid item xs={12} sm={6} md={3} key={stat.title}>
             <Paper
@@ -45,7 +48,7 @@ const DashboardPage = () => {
                 backgroundColor: '#e0f7fa',
               }}
             >
-              <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+              <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#009688' }}>
                 {stat.value}
               </Typography>
               <Typography variant="body2" sx={{ color: 'gray' }}>
@@ -68,7 +71,7 @@ const DashboardPage = () => {
               backgroundColor: '#e0f7fa',
             }}
           >
-            <Typography variant="h5" sx={{ mb: 2, fontWeight: 'bold' }}>
+            <Typography variant="h5" sx={{ mb: 2, fontWeight: 'bold', color: '#009688' }}>
               Leaderboard
             </Typography>
             {leaderboardData.map((entry, index) => (
@@ -83,4 +86,4 @@ const DashboardPage = () => {
   );
 };
 
-export default DashboardPage;
+export default AdminPage;
