@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Typography, TextField, Button, Link } from "@mui/material";
+import { Box, Typography, TextField, Button } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 
 export default function Login() {
@@ -13,7 +13,7 @@ export default function Login() {
   return (
     <Box
       sx={{
-        backgroundColor: "#FAF3DD",
+        backgroundColor: "#F5F5F5", // Light gray background to balance the theme
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
@@ -21,38 +21,31 @@ export default function Login() {
         alignItems: "center",
       }}
     >
-      {/* Header Section */}
-      <Box
-        sx={{
-          width: "100%",
-          backgroundColor: "#CDE8E5",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "20px 40px",
-          position: "absolute",
-          top: 0,
-        }}
-      >
-        <Typography variant="h4" sx={{ color: "#964B00", fontWeight: "bold" }}>
-          SLAVE GAME
-        </Typography>
-        <Link href="/register" sx={{ color: "#964B00", fontSize: "16px" }}>
-          SIGNUP
-        </Link>
-      </Box>
-
       {/* Login Form */}
       <Box
         sx={{
           width: "400px",
           padding: "40px",
-          borderRadius: "8px",
-          boxShadow: "0px 0px 20px rgba(0, 0, 0, 0.1)",
+          borderRadius: "16px", // Increase border radius for a softer look
+          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
           textAlign: "center",
+          backgroundColor: "#FFFFFF", // White background for the form
+          border: "1px solid #FFA726", // Orange accent border
         }}
       >
-        <PersonIcon sx={{ fontSize: 80, color: "#A5D8DD", marginBottom: "20px" }} />
+        <PersonIcon
+          sx={{
+            fontSize: 80,
+            color: "#FFA726", // Orange tone for the icon
+            marginBottom: "20px",
+          }}
+        />
+        <Typography
+          variant="h5"
+          sx={{ color: "#BF360C", fontWeight: "bold", marginBottom: "20px" }} // Subtle orange color for header text
+        >
+          LOGIN
+        </Typography>
         <TextField
           label="USERNAME"
           variant="outlined"
@@ -63,6 +56,11 @@ export default function Login() {
           sx={{
             "& .MuiOutlinedInput-root": {
               borderRadius: "30px",
+              borderColor: "#FFA726", // Orange border
+            },
+            "& .MuiInputLabel-root": { color: "#9E9E9E" }, // Gray label color
+            "&:hover .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+              borderColor: "#FF7043", // Darker orange on hover
             },
           }}
         />
@@ -77,6 +75,11 @@ export default function Login() {
           sx={{
             "& .MuiOutlinedInput-root": {
               borderRadius: "30px",
+              borderColor: "#FFA726",
+            },
+            "& .MuiInputLabel-root": { color: "#9E9E9E" },
+            "&:hover .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+              borderColor: "#FF7043",
             },
           }}
         />
@@ -85,12 +88,16 @@ export default function Login() {
           fullWidth
           onClick={handleLogin}
           sx={{
-            backgroundColor: "#A5D8DD",
-            color: "#964B00",
+            backgroundColor: "#FFA726", // Primary orange color for button
+            color: "#FFFFFF",
             fontWeight: "bold",
             marginTop: "20px",
             borderRadius: "30px",
-            padding: "10px 0",
+            padding: "12px 0",
+            "&:hover": {
+              backgroundColor: "#FF7043", // Darker orange on hover
+              boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.2)",
+            },
           }}
         >
           LOGIN
