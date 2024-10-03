@@ -1,49 +1,71 @@
-import React, { useState } from "react";
-import { Box, Button, Typography, Grid, Paper } from "@mui/material";
+// pages/player1.js
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 
-export default function Player2() {
-  const [playerCards, setPlayerCards] = useState(["05s", "07d", "0qc"]); // Replace with actual player cards
+export default function Player2Page() {
+    const router = useRouter();
+    const [cards, setCards] = useState([]);
+    const [tableCards, setTableCards] = useState([]);
+    const [playerTurn, setPlayerTurn] = useState(2);
 
-  return (
-    <Box sx={{ padding: "20px", backgroundColor: "#355364", minHeight: "100vh" }}>
-      <Typography variant="h4" sx={{ color: "#fff", textAlign: "center" }}>
-        Player 2's Page
-      </Typography>
+    // Function to fetch the current game state
+    const fetchGameState = async () => {
+        const res = await fetch('/api/game-state');
+        const data = await res.json();
+        setCards(data.player2Cards);
+        setTableCards(data.tableCards);
+        setPlayerTurn(data.currentTurn);
+    };
 
-      {/* Display Player's Cards */}
-      <Grid container spacing={2} sx={{ marginTop: "20px" }}>
-        {playerCards.map((card, index) => (
-          <Grid item key={index}>
-            <Paper sx={{ padding: "10px", textAlign: "center" }}>
-              <Typography variant="h5">{card}</Typography>
-            </Paper>
-          </Grid>
-        ))}
-      </Grid>
+    useEffect(() => {
+        fetchGameState(); // Fetch game state when component mounts
+    }, []);
 
-      {/* Play Area */}
-      <Box sx={{ marginTop: "40px" }}>
-        <Typography variant="h6" sx={{ color: "#fff" }}>Cards on the Table:</Typography>
-        {/* Display the cards currently on the table */}
-        <Paper sx={{ padding: "20px", marginTop: "10px" }}>
-          {/* Replace with actual table cards */}
-          <Typography variant="h5">05s, 07d</Typography>
-        </Paper>
-      </Box>
+    const playCard = async (card) => {
+        if (playerTurn === 2) {
+            const res = await fetch('/api/play-card', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ playerId: 2, card }),
+            });
 
-      {/* Controls for Playing or Skipping */}
-      <Box sx={{ display: "flex", justifyContent: "center", marginTop: "40px" }}>
-        <Button variant="contained" sx={{ margin: "0 10px" }}>
-          Play Selected Cards
-        </Button>
-        <Button variant="contained" sx={{ margin: "0 10px" }}>
-          Surrender
-        </Button>
-        <Button variant="contained" sx={{ margin: "0 10px" }}>
-          Skip Turn
-        </Button>
-      </Box>
-    </Box>
-  );
+            if (res.ok) {
+                const data = await res.json();
+                setCards(data.updatedPlayerCards);
+                setTableCards(data.updatedTableCards);
+                setPlayerTurn(data.currentTurn);
+
+                // Navigate to the next player page if it's their turn
+                if (data.currentTurn === 3) {
+                    router.push('/player3');
+                }
+            } else {
+                const errorData = await res.json();
+                alert(errorData.message); // Show error if not the player's turn
+            }
+        } else {
+            alert("It's not your turn!");
+        }
+    };
+
+    return (
+        <div>
+            <h1>Player 2's Page</h1>
+            <h2>Cards on Table:</h2>
+            <div>
+                {tableCards.map((card, idx) => (
+                    <span key={idx}>{card} </span>
+                ))}
+            </div>
+
+            <h3>Your Cards:</h3>
+            {cards.map((card, idx) => (
+                <button key={idx} onClick={() => playCard(card)}>
+                    {card}
+                </button>
+            ))}
+
+            <p>Current turn: {playerTurn}</p>
+        </div>
+    );
 }
-
