@@ -1,4 +1,4 @@
-// pages/player1.js
+// pages/player3.js
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
@@ -7,18 +7,20 @@ export default function Player3Page() {
     const [cards, setCards] = useState([]);
     const [tableCards, setTableCards] = useState([]);
     const [playerTurn, setPlayerTurn] = useState(3);
+    const [hasWon, setHasWon] = useState(false);
+    const [showCards, setShowCards] = useState(false);
 
-    // Function to fetch the current game state
     const fetchGameState = async () => {
         const res = await fetch('/api/game-state');
         const data = await res.json();
         setCards(data.player3Cards);
         setTableCards(data.tableCards);
         setPlayerTurn(data.currentTurn);
+        setHasWon(data.player3Cards.length === 0);
     };
 
     useEffect(() => {
-        fetchGameState(); // Fetch game state when component mounts
+        fetchGameState();
     }, []);
 
     const playCard = async (card) => {
@@ -34,18 +36,23 @@ export default function Player3Page() {
                 setCards(data.updatedPlayerCards);
                 setTableCards(data.updatedTableCards);
                 setPlayerTurn(data.currentTurn);
+                setHasWon(data.updatedPlayerCards.length === 0);
 
-                // Navigate to the next player page if it's their turn
                 if (data.currentTurn === 4) {
                     router.push('/player4');
                 }
             } else {
                 const errorData = await res.json();
-                alert(errorData.message); // Show error if not the player's turn
+                alert(errorData.message);
             }
         } else {
             alert("It's not your turn!");
         }
+    };
+
+    const handleWin = () => {
+        alert("Congratulations! You have won!");
+        window.location.reload();
     };
 
     return (
@@ -59,11 +66,27 @@ export default function Player3Page() {
             </div>
 
             <h3>Your Cards:</h3>
-            {cards.map((card, idx) => (
-                <button key={idx} onClick={() => playCard(card)}>
-                    {card}
-                </button>
-            ))}
+            {hasWon ? (
+                <div>
+                    <h2>You Win!</h2>
+                    <button onClick={handleWin}>Declare Victory</button>
+                </div>
+            ) : (
+                <>
+                    <button onClick={() => setShowCards(!showCards)}>
+                        {showCards ? "Hide Cards" : "Open Cards"}
+                    </button>
+                    {showCards && (
+                        <div>
+                            {cards.map((card, idx) => (
+                                <button key={idx} onClick={() => playCard(card)}>
+                                    {card}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </>
+            )}
 
             <p>Current turn: {playerTurn}</p>
         </div>

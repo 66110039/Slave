@@ -7,18 +7,20 @@ export default function Player1Page() {
     const [cards, setCards] = useState([]);
     const [tableCards, setTableCards] = useState([]);
     const [playerTurn, setPlayerTurn] = useState(1);
+    const [hasWon, setHasWon] = useState(false); // Track if the player has won
+    const [showCards, setShowCards] = useState(false); // Track whether to show cards
 
-    // Function to fetch the current game state
     const fetchGameState = async () => {
         const res = await fetch('/api/game-state');
         const data = await res.json();
         setCards(data.player1Cards);
         setTableCards(data.tableCards);
         setPlayerTurn(data.currentTurn);
+        setHasWon(data.player1Cards.length === 0);
     };
 
     useEffect(() => {
-        fetchGameState(); // Fetch game state when component mounts
+        fetchGameState();
     }, []);
 
     const playCard = async (card) => {
@@ -34,6 +36,7 @@ export default function Player1Page() {
                 setCards(data.updatedPlayerCards);
                 setTableCards(data.updatedTableCards);
                 setPlayerTurn(data.currentTurn);
+                setHasWon(data.updatedPlayerCards.length === 0);
 
                 // Navigate to the next player page if it's their turn
                 if (data.currentTurn === 2) {
@@ -48,6 +51,11 @@ export default function Player1Page() {
         }
     };
 
+    const handleWin = () => {
+        alert("Congratulations! You have won!");
+        window.location.reload(); // Refresh the page to restart the game
+    };
+
     return (
         <div>
             <h1>Player 1's Page</h1>
@@ -59,11 +67,27 @@ export default function Player1Page() {
             </div>
 
             <h3>Your Cards:</h3>
-            {cards.map((card, idx) => (
-                <button key={idx} onClick={() => playCard(card)}>
-                    {card}
-                </button>
-            ))}
+            {hasWon ? (
+                <div>
+                    <h2>You Win!</h2>
+                    <button onClick={handleWin}>Declare Victory</button>
+                </div>
+            ) : (
+                <>
+                    <button onClick={() => setShowCards(!showCards)}>
+                        {showCards ? "Hide Cards" : "Open Cards"}
+                    </button>
+                    {showCards && (
+                        <div>
+                            {cards.map((card, idx) => (
+                                <button key={idx} onClick={() => playCard(card)}>
+                                    {card}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </>
+            )}
 
             <p>Current turn: {playerTurn}</p>
         </div>
