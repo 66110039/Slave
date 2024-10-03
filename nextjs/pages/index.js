@@ -100,13 +100,13 @@ export default function HomePage() {
               color: "#E65100", // Deep orange color for text
             }}
           >
-            Welcome to the Ultimate Card Game!
+            Welcome to the Slave Card Game!
           </Typography>
           <Typography
             variant="h6"
             sx={{ marginTop: 2, color: "#D84315", fontStyle: "italic" }} // Italic subtitle text
           >
-            Step up your game and claim the title of the ultimate player!
+            Show off your skills and be the top player!
           </Typography>
         </Box>
       </Box>
