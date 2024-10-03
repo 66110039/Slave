@@ -3,7 +3,7 @@ import { Box, Typography, TextField, Button } from "@mui/material";
 
 export default function Register() {
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");  // State for the email
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -14,7 +14,7 @@ export default function Register() {
   return (
     <Box
       sx={{
-        backgroundColor: "#FAF3DD",
+        backgroundColor: "#F5F5F5", // Light gray background to balance the theme
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
@@ -22,36 +22,23 @@ export default function Register() {
         alignItems: "center",
       }}
     >
-      {/* Header Section */}
-      <Box
-        sx={{
-          width: "100%",
-          backgroundColor: "#CDE8E5",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          padding: "20px 40px",
-          position: "absolute",
-          top: 0,
-        }}
-      >
-        <Typography variant="h4" sx={{ color: "#964B00", fontWeight: "bold" }}>
-          SLAVE GAME
-        </Typography>
-      </Box>
-
       {/* Register Form */}
       <Box
         sx={{
           width: "400px",
           padding: "40px",
-          borderRadius: "8px",
-          boxShadow: "0px 0px 20px rgba(0, 0, 0, 0.1)",
+          borderRadius: "12px",
+          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
           textAlign: "center",
+          backgroundColor: "#FFFFFF", // White background for the form
+          border: "1px solid #FFA726", // Orange accent border
           marginTop: "100px",
         }}
       >
-        <Typography variant="h5" sx={{ color: "#964B00", fontWeight: "bold", marginBottom: "20px" }}>
+        <Typography
+          variant="h5"
+          sx={{ color: "#BF360C", fontWeight: "bold", marginBottom: "20px" }} // Subtle orange color for header text
+        >
           REGISTRATION
         </Typography>
         <TextField
@@ -61,7 +48,16 @@ export default function Register() {
           margin="normal"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          sx={{ "& .MuiOutlinedInput-root": { borderRadius: "30px" } }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "30px",
+              borderColor: "#FFA726", // Orange border
+            },
+            "& .MuiInputLabel-root": { color: "#9E9E9E" }, // Gray label color
+            "&:hover .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+              borderColor: "#FF7043", // Darker orange on hover
+            },
+          }}
         />
         <TextField
           label="EMAIL"
@@ -71,7 +67,16 @@ export default function Register() {
           margin="normal"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          sx={{ "& .MuiOutlinedInput-root": { borderRadius: "30px" } }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "30px",
+              borderColor: "#FFA726",
+            },
+            "& .MuiInputLabel-root": { color: "#9E9E9E" },
+            "&:hover .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+              borderColor: "#FF7043",
+            },
+          }}
         />
         <TextField
           label="PASSWORD"
@@ -81,7 +86,16 @@ export default function Register() {
           margin="normal"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          sx={{ "& .MuiOutlinedInput-root": { borderRadius: "30px" } }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "30px",
+              borderColor: "#FFA726",
+            },
+            "& .MuiInputLabel-root": { color: "#9E9E9E" },
+            "&:hover .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+              borderColor: "#FF7043",
+            },
+          }}
         />
         <TextField
           label="CONFIRM PASSWORD"
@@ -91,19 +105,32 @@ export default function Register() {
           margin="normal"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          sx={{ "& .MuiOutlinedInput-root": { borderRadius: "30px" } }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "30px",
+              borderColor: "#FFA726",
+            },
+            "& .MuiInputLabel-root": { color: "#9E9E9E" },
+            "&:hover .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+              borderColor: "#FF7043",
+            },
+          }}
         />
         <Button
           variant="contained"
           fullWidth
           onClick={handleRegister}
           sx={{
-            backgroundColor: "#A5D8DD",
-            color: "#964B00",
+            backgroundColor: "#FFA726", // Primary orange color for button
+            color: "#FFFFFF",
             fontWeight: "bold",
             marginTop: "20px",
             borderRadius: "30px",
-            padding: "10px 0",
+            padding: "12px 0",
+            "&:hover": {
+              backgroundColor: "#FF7043", // Darker orange on hover
+              boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.2)",
+            },
           }}
         >
           REGISTER
