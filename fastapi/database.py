@@ -2,6 +2,10 @@
 
 from datetime import datetime, timezone
 from databases import Database
+import logging
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
 
 # Database connection details
 POSTGRES_USER = "temp"
@@ -56,3 +60,18 @@ async def update_last_login(user_id: int):
     # Use datetime.now with timezone set to UTC
     values = {"last_login": datetime.now(timezone.utc), "user_id": user_id}
     await database.execute(query=query, values=values)
+
+# Function to insert a new leaderboard entry
+async def insert_leaderboard(user_id: int, total_wins: int, highest_score: int):
+    query = """
+    INSERT INTO leaderboard (user_id, total_wins, highest_score)
+    VALUES (:user_id, :total_wins, :highest_score)
+    RETURNING leaderboard_id, user_id, total_wins, highest_score, last_updated
+    """
+    values = {"user_id": user_id, "total_wins": total_wins, "highest_score": highest_score}
+    return await database.fetch_one(query=query, values=values)
+
+# Function to get all leaderboard entries
+async def get_all_leaderboard_entries():
+    query = "SELECT * FROM leaderboard ORDER BY highest_score DESC"
+    return await database.fetch_all(query=query)
