@@ -197,9 +197,9 @@ export default function HomePage() {
                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
               },
             }}
-            onClick={() => router.push("/admin")}
+            onClick={() => router.push("/leaderboard")}
           >
-            View Scoreboard
+            View Leaderboard
           </Button>
         </Box>
       </Paper>
