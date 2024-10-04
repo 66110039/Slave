@@ -1,18 +1,25 @@
 import React from 'react';
 import { Box, Typography, Button, Paper, Grid } from '@mui/material';
-import EventSeatIcon from '@mui/icons-material/EventSeat'; // Seat icon for visual cue
+import EventSeatIcon from '@mui/icons-material/EventSeat';
+import { useRouter } from 'next/router'; // Import the useRouter hook
 
 const seats = [1, 2, 3, 4]; // Define seats
 
 const LobbyPage = () => {
+  const router = useRouter(); // Initialize useRouter for navigation
+
   const handleJoinGame = (seatNumber) => {
     console.log(`Joining Seat ${seatNumber}`);
+  };
+
+  const handleStartGame = () => {
+    router.push('/player1'); // Navigate to player1.js page
   };
 
   return (
     <Box
       sx={{
-        backgroundColor: '#FFF3E0', // Light pastel orange background
+        backgroundColor: '#FFF3E0',
         minHeight: '100vh',
         display: 'flex',
         justifyContent: 'center',
@@ -25,11 +32,11 @@ const LobbyPage = () => {
         sx={{
           width: '80%',
           maxWidth: '900px',
-          backgroundColor: '#FFFFFF', // White background for the lobby container
+          backgroundColor: '#FFFFFF',
           borderRadius: '24px',
           padding: 5,
-          boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15)', // Soft shadow for subtle lift effect
-          border: '1px solid #FFA726', // Accent border in orange
+          boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15)',
+          border: '1px solid #FFA726',
           textAlign: 'center',
         }}
       >
@@ -49,14 +56,14 @@ const LobbyPage = () => {
                 sx={{
                   borderRadius: '16px',
                   padding: 3,
-                  backgroundColor: '#FFF9C4', // Uniform light yellow for all seats
-                  border: index === 3 ? '2px solid #FFA726' : '2px solid #FFA726', // Same border style for all seats
-                  boxShadow: '0px 6px 12px rgba(0, 0, 0, 0.1)', // Soft shadow
+                  backgroundColor: '#FFF9C4',
+                  border: '2px solid #FFA726',
+                  boxShadow: '0px 6px 12px rgba(0, 0, 0, 0.1)',
                   textAlign: 'center',
                   transition: 'transform 0.2s ease-in-out',
                   '&:hover': {
-                    transform: 'scale(1.05)', // Slight zoom on hover
-                    boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15)', // Enhanced shadow on hover
+                    transform: 'scale(1.05)',
+                    boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15)',
                   },
                 }}
               >
@@ -64,7 +71,7 @@ const LobbyPage = () => {
                 <EventSeatIcon
                   sx={{
                     fontSize: 50,
-                    color: '#FFA726', // Same orange color for all seats
+                    color: '#FFA726',
                     marginBottom: 2,
                   }}
                 />
@@ -80,10 +87,10 @@ const LobbyPage = () => {
                   onClick={() => handleJoinGame(seat)}
                   sx={{
                     mt: 2,
-                    backgroundColor: '#FFA726', // Same button color for all seats
+                    backgroundColor: '#FFA726',
                     color: '#ffffff',
                     '&:hover': {
-                      backgroundColor: '#FF7043', // Darker orange on hover for all seats
+                      backgroundColor: '#FF7043',
                     },
                   }}
                 >
@@ -106,11 +113,11 @@ const LobbyPage = () => {
               padding: '12px 24px',
               borderRadius: '12px',
               '&:hover': {
-                backgroundColor: '#D84315', // Darker red on hover
+                backgroundColor: '#D84315',
                 boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.15)',
               },
             }}
-            onClick={() => console.log('Starting the game...')}
+            onClick={handleStartGame} // Use the navigation function on click
           >
             Start Game
           </Button>
