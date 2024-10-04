@@ -45,16 +45,20 @@ export default function Register() {
 
       const data = await response.json();
       console.log("Registration successful:", data);
-      setSnackbarMessage("Registration successful!");
+      setSnackbarMessage("Registration successful! Redirecting to login...");
       setSnackbarSeverity("success");
       setOpenSnackbar(true);
-      // Handle successful registration (e.g., redirect)
+
+      // Redirect to login page after successful registration
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 2000); // Delay for 2 seconds before redirecting
+
     } catch (error) {
       console.error("Registration error:", error);
       setSnackbarMessage("Registration failed.");
       setSnackbarSeverity("error");
       setOpenSnackbar(true);
-      // Handle registration error (e.g., display error message)
     }
   };
 
