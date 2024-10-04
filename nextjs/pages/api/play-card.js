@@ -1,23 +1,34 @@
-// pages/api/play-card.js
+//playCard
 import gameState from '/components/gameState';
 
 export default function handler(req, res) {
     try {
-        const { playerId, card } = req.body; // Directly access req.body
+        const { playerId, card } = req.body;
         console.log("Received request:", playerId, card); // Debug log
 
-        // Check which player's turn it is and update the cards
-        if (playerId === 1 && gameState.currentTurn === 1) {
-            gameState.player1Cards = gameState.player1Cards.filter((c) => c !== card);
-        } else if (playerId === 2 && gameState.currentTurn === 2) {
-            gameState.player2Cards = gameState.player2Cards.filter((c) => c !== card);
-        } else if (playerId === 3 && gameState.currentTurn === 3) {
-            gameState.player3Cards = gameState.player3Cards.filter((c) => c !== card);
-        } else if (playerId === 4 && gameState.currentTurn === 4) {
-            gameState.player4Cards = gameState.player4Cards.filter((c) => c !== card);
-        } else {
+        // Validate playerId and card
+        if (!playerId || !card) {
+            return res.status(400).json({ message: 'Player ID and card are required' });
+        }
+
+        const playerKey = `player${playerId}Cards`;
+
+        // Log current player's cards
+        console.log(`Player ${playerId}'s cards:`, gameState[playerKey]);
+
+        // Ensure the card belongs to the player's hand
+        if (!gameState[playerKey].includes(card)) {
+            console.log(`Card not found in hand: ${card}`);
+            return res.status(400).json({ message: 'Card not in hand!' });
+        }
+
+        // Ensure it's the correct player's turn
+        if (playerId !== gameState.currentTurn) {
             return res.status(400).json({ message: 'Not your turn!' });
         }
+
+        // Remove the card from the player's hand
+        gameState[playerKey] = gameState[playerKey].filter((c) => c !== card);
 
         // Add the played card to the table
         gameState.tableCards.push(card);
@@ -25,12 +36,13 @@ export default function handler(req, res) {
         // Update to next player's turn (looping after Player 4 back to Player 1)
         gameState.currentTurn = (gameState.currentTurn % 4) + 1;
 
-        // Send back updated game state (updated player's hand, table cards, and whose turn it is)
+        // Send back updated game state
         res.status(200).json({
-            updatedPlayerCards: gameState[`player${playerId}Cards`],
+            updatedPlayerCards: gameState[playerKey],
             updatedTableCards: gameState.tableCards,
             currentTurn: gameState.currentTurn,
         });
+
     } catch (error) {
         console.error('Error in play-card API:', error); // Log the error
         res.status(500).json({ message: 'Server error' });

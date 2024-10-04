@@ -1,0 +1,60 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f8f8e5; /* Light background */
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.title {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.table {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    margin: 20px 0;
+}
+
+.playerCards {
+    text-align: center;
+    font-size: 18px;
+    background-color: #A4D6E1; /* Light blue */
+    padding: 10px;
+    border-radius: 5px;
+    width: 120px;
+}
+
+.centerTable {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.tableCard {
+    width: 60px; /* Adjust the size of table cards */
+    height: auto;
+    margin: 5px;
+}
+
+.cardContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.cardButton {
+    border: none;
+    background: none;
+    cursor: pointer;
+    margin: 0 5px;
+}
+
+.cardImage {
+    width: 50px; /* Adjust the size of player cards */
+    height: auto;
+}
