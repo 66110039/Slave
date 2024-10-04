@@ -98,5 +98,3 @@ async def login_user(user: UserLogin):
        "email": db_user.email,
        "created_at": db_user.created_at
    }
-
-

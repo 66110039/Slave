@@ -1,19 +1,64 @@
 import React, { useState } from "react";
-import { Box, Typography, TextField, Button } from "@mui/material";
+import { Box, Typography, TextField, Button, Snackbar, Alert } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
-  const handleLogin = () => {
-    // Implement login logic here
+  const handleSnackbarClose = () => {
+    setOpenSnackbar(false);
+  };
+
+  const handleLogin = async () => {
+    if (!username || !password) {
+      setSnackbarMessage("Please fill in both fields.");
+      setSnackbarSeverity("error");
+      setOpenSnackbar(true);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch("/api/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: username,
+          password_hash: password,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Login failed");
+      }
+
+      setSnackbarMessage("Login successful!");
+      setSnackbarSeverity("success");
+      setOpenSnackbar(true);
+
+      // Navigate to the next page after successful login
+      window.location.href = "/";
+    } catch (error) {
+      setSnackbarMessage(error.message);
+      setSnackbarSeverity("error");
+      setOpenSnackbar(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Box
       sx={{
-        backgroundColor: "#F5F5F5", // Light gray background to balance the theme
+        backgroundColor: "#F5F5F5",
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
@@ -21,28 +66,27 @@ export default function Login() {
         alignItems: "center",
       }}
     >
-      {/* Login Form */}
       <Box
         sx={{
           width: "400px",
           padding: "40px",
-          borderRadius: "16px", // Increase border radius for a softer look
+          borderRadius: "16px",
           boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
           textAlign: "center",
-          backgroundColor: "#FFFFFF", // White background for the form
-          border: "1px solid #FFA726", // Orange accent border
+          backgroundColor: "#FFFFFF",
+          border: "1px solid #FFA726",
         }}
       >
         <PersonIcon
           sx={{
             fontSize: 80,
-            color: "#FFA726", // Orange tone for the icon
+            color: "#FFA726",
             marginBottom: "20px",
           }}
         />
         <Typography
           variant="h5"
-          sx={{ color: "#BF360C", fontWeight: "bold", marginBottom: "20px" }} // Subtle orange color for header text
+          sx={{ color: "#BF360C", fontWeight: "bold", marginBottom: "20px" }}
         >
           LOGIN
         </Typography>
@@ -56,11 +100,11 @@ export default function Login() {
           sx={{
             "& .MuiOutlinedInput-root": {
               borderRadius: "30px",
-              borderColor: "#FFA726", // Orange border
+              borderColor: "#FFA726",
             },
-            "& .MuiInputLabel-root": { color: "#9E9E9E" }, // Gray label color
+            "& .MuiInputLabel-root": { color: "#9E9E9E" },
             "&:hover .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
-              borderColor: "#FF7043", // Darker orange on hover
+              borderColor: "#FF7043",
             },
           }}
         />
@@ -87,22 +131,34 @@ export default function Login() {
           variant="contained"
           fullWidth
           onClick={handleLogin}
+          disabled={loading}
           sx={{
-            backgroundColor: "#FFA726", // Primary orange color for button
+            backgroundColor: "#FFA726",
             color: "#FFFFFF",
             fontWeight: "bold",
             marginTop: "20px",
             borderRadius: "30px",
             padding: "12px 0",
             "&:hover": {
-              backgroundColor: "#FF7043", // Darker orange on hover
+              backgroundColor: "#FF7043",
               boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.2)",
             },
           }}
         >
-          LOGIN
+          {loading ? "Logging in..." : "LOGIN"}
         </Button>
       </Box>
+
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
