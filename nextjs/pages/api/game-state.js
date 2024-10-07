@@ -3,20 +3,17 @@ import gameState from '/components/gameState';
 
 
 export default function handler(req, res) {
+    if (req.method !== 'GET') {
+        return res.status(405).json({ message: 'Method Not Allowed' });
+    }
     try {
-        // Example authorization check (optional)
-        // if (!req.session || !req.session.playerId) {
-        //     return res.status(403).json({ message: 'Unauthorized access' });
-        // }
+        console.log('Game state being sent:', gameState);
+        console.log(`Game state requested at ${new Date().toISOString()}`);
 
-        // Log the game state request
-        console.log('Game state being sent:', gameState); // Log the game state
-        console.log(`Game state requested at ${new Date().toISOString()}`); // Timestamp
-
-        // Respond with the current game state
         res.status(200).json(gameState);
+
     } catch (error) {
-        console.error('Error fetching game state:', error); // Log any errors
+        console.error(`Error at ${new Date().toISOString()} - Failed to fetch game state:`, error.message);
         res.status(500).json({ message: 'Failed to fetch game state' });
     }
 }

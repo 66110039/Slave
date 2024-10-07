@@ -1,4 +1,5 @@
-//playCard
+//api/playCard
+
 import gameState from '/components/gameState';
 
 export default function handler(req, res) {
@@ -14,7 +15,7 @@ export default function handler(req, res) {
         const playerKey = `player${playerId}Cards`;
 
         // Log current player's cards
-        console.log(`Player ${playerId}'s cards:`, gameState[playerKey]);
+        console.log(`Card played at ${new Date().toISOString()}: Player ${playerId} played ${card}`);
 
         // Ensure the card belongs to the player's hand
         if (!gameState[playerKey].includes(card)) {
@@ -30,11 +31,19 @@ export default function handler(req, res) {
         // Remove the card from the player's hand
         gameState[playerKey] = gameState[playerKey].filter((c) => c !== card);
 
-        // Add the played card to the table
-        gameState.tableCards.push(card);
+        // Only keep the last card played on the table
+        gameState.tableCards = [card];
 
         // Update to next player's turn (looping after Player 4 back to Player 1)
         gameState.currentTurn = (gameState.currentTurn % 4) + 1;
+
+        if (gameState[playerKey].length === 0) {
+            return res.status(200).json({
+                message: `Player ${playerId} has won!`,
+                winner: playerId,
+                gameState, // Optionally return the whole game state
+            });
+        }
 
         // Send back updated game state
         res.status(200).json({

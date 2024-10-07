@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import styles from './PlayerPage.module.css'; // Import your CSS module
-import PlayerHand from './PlayerHand';
+import styles from './PlayerPage.module.css'; // Ensure this file exists
 
 export default function PlayerPage({ playerId, nextPlayerRoute }) {
     const router = useRouter();
@@ -20,7 +19,7 @@ export default function PlayerPage({ playerId, nextPlayerRoute }) {
             }
             const data = await res.json();
             console.log("Game state fetched successfully:", data);
-            console.log("Current Turn:", data.currentTurn); // Add this line
+            console.log("Current Turn:", data.currentTurn); // Log current turn
     
             setCards(data[`player${playerId}Cards`]);
             setTableCards(data.tableCards);
@@ -47,17 +46,13 @@ export default function PlayerPage({ playerId, nextPlayerRoute }) {
 
             if (res.ok) {
                 const data = await res.json();
-                if (data.errorMessage) {
-                    alert(data.errorMessage);
-                } else {
-                    setCards(data.updatedPlayerCards);
-                    setTableCards(data.updatedTableCards);
-                    setPlayerTurn(data.currentTurn);
-                    setHasWon(data.updatedPlayerCards.length === 0);
+                setCards(data.updatedPlayerCards);
+                setTableCards(data.updatedTableCards);
+                setPlayerTurn(data.currentTurn);
+                setHasWon((data.updatedPlayerCards || []).length === 0);
 
-                    if (data.currentTurn !== playerId) {
-                        router.push(nextPlayerRoute);
-                    }
+                if (data.currentTurn !== playerId) {
+                    router.push(nextPlayerRoute);
                 }
             } else {
                 const errorData = await res.json();
@@ -87,25 +82,19 @@ export default function PlayerPage({ playerId, nextPlayerRoute }) {
     return (
         <div className={styles.container}>
             <h1 className={styles.title}>Player {playerId}'s Page</h1>
-            <div className={styles.table}>
-                <div className={styles.playerCards}>
-                    <h2>Cards Left:</h2>
-                    <span>{tableCards.length}</span>
-                </div>
-                <div className={styles.centerTable}>
-                    {tableCards.map((card, idx) => (
+            <div className={styles.centerTable}>
+                {tableCards && tableCards.length > 0 ? (
+                    tableCards.map((card, idx) => (
                         <img 
                             key={idx} 
                             src={`/cards/${card}.png`} 
                             alt={card} 
                             className={styles.tableCard} 
                         />
-                    ))}
-                </div>
-                <div className={styles.playerCards}>
-                    <h2>Cards Left:</h2>
-                    <span>{tableCards.length}</span>
-                </div>
+                    ))
+                ) : (
+                    <p>No cards on the table</p>
+                )}
             </div>
 
             <h3>Your Cards:</h3>
@@ -125,8 +114,19 @@ export default function PlayerPage({ playerId, nextPlayerRoute }) {
                                 <p>Loading...</p>
                             ) : (
                                 cards.map((card, idx) => (
-                                    <button key={idx} onClick={(e) => { e.preventDefault(); playCard(card); }} className={styles.cardButton}>
-                                        <img src={`/cards/${card}.png`} alt={card} className={styles.cardImage} />
+                                    <button 
+                                        key={idx} 
+                                        onClick={(e) => { 
+                                            e.preventDefault(); 
+                                            playCard(card); 
+                                        }} 
+                                        className={styles.cardButton}
+                                    >
+                                        <img 
+                                            src={`/cards/${card}.png`} 
+                                            alt={card} 
+                                            className={styles.cardImage} 
+                                        />
                                     </button>
                                 ))
                             )}
