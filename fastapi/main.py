@@ -90,7 +90,25 @@ async def play_card(play_card_request: PlayCardRequest):
         if player_card_rank <= top_card_rank:
             raise HTTPException(status_code=400, detail="Card must be higher than the card on the table")
 
-    # Remove the card from the player's hand and place it on the table
+    # Check if the played card is the highest among all cards (including current player's remaining cards)
+    played_card_rank = int(card[:-1])
+    all_remaining_cards = [
+        int(c[:-1]) for p in game.players for c in p.cards  # Include all players' cards, including the current player
+    ]
+
+    # If the player's card is the highest, clear the table
+    if all_remaining_cards and played_card_rank >= max(all_remaining_cards):
+        player.cards.remove(card)  # Remove the played card from the player's hand
+        game.table.append(card)  # Place the card on the table
+        game.table = []  # Clear the table
+
+        return {
+            "message": f"Player {player_id} played {card}. It's the highest card! The table is cleared.",
+            "player_cards": player.cards,
+            "table": game.table
+        }
+
+    # If the card is not the highest, just remove it and place it on the table
     player.cards.remove(card)
     game.table.append(card)
 
@@ -99,6 +117,7 @@ async def play_card(play_card_request: PlayCardRequest):
         "player_cards": player.cards,
         "table": game.table
     }
+
 
 if __name__ == "__main__":
     import uvicorn

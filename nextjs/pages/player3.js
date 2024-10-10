@@ -51,6 +51,7 @@ const Player3 = () => {
             setErrorMessage('Failed to play card. Please try again.');
         }
     };
+    
 
     function Card({ card }) {
         return (

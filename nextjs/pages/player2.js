@@ -51,6 +51,7 @@ const Player2 = () => {
             setErrorMessage('Failed to play card. Please try again.');
         }
     };
+    
 
     const Card = ({ card }) => (
         <div
