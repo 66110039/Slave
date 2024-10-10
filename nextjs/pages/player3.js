@@ -39,38 +39,39 @@ const Player3 = () => {
                 },
                 body: JSON.stringify({ player_id: playerId, card: cardToPlay }),
             });
-
+    
             if (response.ok) {
                 alert('Card played successfully!');
-                fetchGameState();
+                fetchGameState(); // Refresh game state after playing a card
             } else {
                 const errorData = await response.json();
-                setErrorMessage(`Error: ${errorData.detail}`);
+                setErrorMessage(`Error: ${errorData.detail}`); // Display error from the backend
             }
         } catch (error) {
             setErrorMessage('Failed to play card. Please try again.');
         }
     };
 
-    const Card = ({ card }) => (
-        <div
-            onClick={() => playCard(card)}
-            style={{
-                display: 'inline-block',
-                margin: '10px',
-                cursor: 'pointer'
-            }}
-        >
-            <img 
-                src={`/cards/${card}.png`} 
-                alt={card} 
+    function Card({ card }) {
+        return (
+            <div
+                onClick={() => playCard(card)}
                 style={{
-                    width: '100px',
-                    borderRadius: '8px'
-                }} 
-            />
-        </div>
-    );
+                    display: 'inline-block',
+                    margin: '10px',
+                    cursor: 'pointer'
+                }}
+            >
+                <img
+                    src={`/cards/${card}.png`}
+                    alt={card}
+                    style={{
+                        width: '100px',
+                        borderRadius: '8px'
+                    }} />
+            </div>
+        );
+    }
 
     return (
         <div style={{ textAlign: 'center', backgroundColor: '#f8f9fa', padding: '20px' }}>

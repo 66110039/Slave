@@ -43,13 +43,13 @@ const Player1 = () => {
                 },
                 body: JSON.stringify({ player_id: playerId, card: cardToPlay }),
             });
-
+    
             if (response.ok) {
                 alert('Card played successfully!');
                 fetchGameState(); // Refresh game state after playing a card
             } else {
                 const errorData = await response.json();
-                setErrorMessage(`Error: ${errorData.detail}`);
+                setErrorMessage(`Error: ${errorData.detail}`); // Display error from the backend
             }
         } catch (error) {
             setErrorMessage('Failed to play card. Please try again.');

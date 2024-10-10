@@ -80,6 +80,16 @@ async def play_card(play_card_request: PlayCardRequest):
     if card not in player.cards:
         raise HTTPException(status_code=400, detail="Player does not have that card")
 
+    # Check if there is a card on the table
+    if game.table:
+        top_card = game.table[-1]
+        top_card_rank = int(top_card[:-1])  # Extract rank from the top card
+        player_card_rank = int(card[:-1])   # Extract rank from player's card
+
+        # Check if the player's card is higher than the top card
+        if player_card_rank <= top_card_rank:
+            raise HTTPException(status_code=400, detail="Card must be higher than the card on the table")
+
     # Remove the card from the player's hand and place it on the table
     player.cards.remove(card)
     game.table.append(card)
