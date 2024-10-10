@@ -1,27 +1,23 @@
 import { useEffect, useState } from 'react';
 
-const Player1 = () => {
-    const playerId = 2; // Player 1 has ID 0 (0-indexed)
+const Player3 = () => {
+    const playerId = 2; // Player 3 has ID 2 (0-indexed)
     const [playerCards, setPlayerCards] = useState([]);
-    const [tableCards, setTableCards] = useState([]); // Initialized as an empty array
-    const [errorMessage, setErrorMessage] = useState(''); // Track error messages
+    const [tableCards, setTableCards] = useState([]); 
+    const [errorMessage, setErrorMessage] = useState(''); 
 
     const fetchGameState = async () => {
         try {
             const response = await fetch('http://localhost:8000/game/state');
             const data = await response.json();
-            console.log('API Response:', data); // Log the entire response
 
-            // Check if players exist and assign cards
             if (data.players && data.players.length > playerId) {
-                console.log('Player cards:', data.players[playerId].cards); // Log player's cards
                 setPlayerCards(data.players[playerId].cards);
             } else {
                 console.error('Player not found in response:', playerId);
             }
 
-            // Set table cards
-            setTableCards(data.table || []); // Ensure it's an array, fallback to empty array
+            setTableCards(data.table || []);
         } catch (error) {
             console.error('Error fetching game state:', error);
             setErrorMessage('Failed to fetch game state. Please try again.');
@@ -30,8 +26,8 @@ const Player1 = () => {
 
     useEffect(() => {
         fetchGameState();
-        const intervalId = setInterval(fetchGameState, 5000); // Auto-refresh every 5 seconds
-        return () => clearInterval(intervalId); // Cleanup interval on component unmount
+        const intervalId = setInterval(fetchGameState, 5000);
+        return () => clearInterval(intervalId);
     }, []);
 
     const playCard = async (cardToPlay) => {
@@ -46,7 +42,7 @@ const Player1 = () => {
 
             if (response.ok) {
                 alert('Card played successfully!');
-                fetchGameState(); // Refresh game state after playing a card
+                fetchGameState();
             } else {
                 const errorData = await response.json();
                 setErrorMessage(`Error: ${errorData.detail}`);
@@ -58,18 +54,21 @@ const Player1 = () => {
 
     const Card = ({ card }) => (
         <div
-            onClick={() => playCard(card)} // Make the card clickable
+            onClick={() => playCard(card)}
             style={{
                 display: 'inline-block',
                 margin: '10px',
-                padding: '20px',
-                border: '1px solid #ccc',
-                borderRadius: '5px',
-                backgroundColor: '#fff',
-                cursor: 'pointer' // Add cursor pointer to show it's clickable
+                cursor: 'pointer'
             }}
         >
-            {card}
+            <img 
+                src={`/cards/${card}.png`} 
+                alt={card} 
+                style={{
+                    width: '100px',
+                    borderRadius: '8px'
+                }} 
+            />
         </div>
     );
 
@@ -93,4 +92,4 @@ const Player1 = () => {
     );
 };
 
-export default Player1;
+export default Player3;

@@ -58,18 +58,21 @@ const Player1 = () => {
 
     const Card = ({ card }) => (
         <div
-            onClick={() => playCard(card)} // Make the card clickable
+            onClick={() => playCard(card)}
             style={{
                 display: 'inline-block',
                 margin: '10px',
-                padding: '20px',
-                border: '1px solid #ccc',
-                borderRadius: '5px',
-                backgroundColor: '#fff',
-                cursor: 'pointer' // Add cursor pointer to show it's clickable
+                cursor: 'pointer'
             }}
         >
-            {card}
+            <img 
+                src={`/cards/${card}.png`} 
+                alt={card} 
+                style={{
+                    width: '100px', // Adjust size as needed
+                    borderRadius: '8px'
+                }} 
+            />
         </div>
     );
 

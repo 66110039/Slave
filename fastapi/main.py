@@ -25,16 +25,16 @@ class CardGame:
         self.deal_cards()
 
     def create_deck(self):
-        suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
-        ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
-        deck = [f"{rank} of {suit}" for suit in suits for rank in ranks]
+        suits = ['h', 'd', 'c', 's']
+        ranks = ['03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15']
+        deck = [f"{rank}{suit}" for suit in suits for rank in ranks]
         return deck
 
     def shuffle_deck(self):
         random.shuffle(self.deck)
 
     def deal_cards(self):
-        for _ in range(5):  # Deal 5 cards to each player
+        for _ in range(13):  # Deal 5 cards to each player
             for player in self.players:
                 if self.deck:  # Check if there are cards left in the deck
                     player.cards.append(self.deck.pop())  # Remove card from deck and give to player
