@@ -1,8 +1,7 @@
-// pages/player2.js
 import { useEffect, useState } from 'react';
 
-const Player2 = () => {
-    const playerId = 1; // Player 2 has ID 1 (0-indexed)
+const Player1 = () => {
+    const playerId = 1; // Player 1 has ID 0 (0-indexed)
     const [playerCards, setPlayerCards] = useState([]);
     const [tableCards, setTableCards] = useState([]); // Initialized as an empty array
     const [errorMessage, setErrorMessage] = useState(''); // Track error messages
@@ -12,7 +11,7 @@ const Player2 = () => {
             const response = await fetch('http://localhost:8000/game/state');
             const data = await response.json();
             console.log('API Response:', data); // Log the entire response
-            
+
             // Check if players exist and assign cards
             if (data.players && data.players.length > playerId) {
                 console.log('Player cards:', data.players[playerId].cards); // Log player's cards
@@ -31,6 +30,8 @@ const Player2 = () => {
 
     useEffect(() => {
         fetchGameState();
+        const intervalId = setInterval(fetchGameState, 5000); // Auto-refresh every 5 seconds
+        return () => clearInterval(intervalId); // Cleanup interval on component unmount
     }, []);
 
     const playCard = async (cardToPlay) => {
@@ -57,6 +58,7 @@ const Player2 = () => {
 
     const Card = ({ card }) => (
         <div
+            onClick={() => playCard(card)} // Make the card clickable
             style={{
                 display: 'inline-block',
                 margin: '10px',
@@ -64,6 +66,7 @@ const Player2 = () => {
                 border: '1px solid #ccc',
                 borderRadius: '5px',
                 backgroundColor: '#fff',
+                cursor: 'pointer' // Add cursor pointer to show it's clickable
             }}
         >
             {card}
@@ -86,20 +89,8 @@ const Player2 = () => {
                     <Card key={index} card={card} />
                 ))}
             </div>
-            <button
-                onClick={() => {
-                    const cardToPlay = prompt("Enter the card you want to play (e.g., '2 of Hearts'):");
-                    if (cardToPlay && playerCards.includes(cardToPlay.trim())) { // Trim input to avoid space issues
-                        playCard(cardToPlay.trim());
-                    } else {
-                        alert("You don't have that card!");
-                    }
-                }}
-            >
-                Play Card
-            </button>
         </div>
     );
 };
 
-export default Player2;
+export default Player1;

@@ -51,7 +51,7 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to the Card Game API!"} 
+    return {"message": "Welcome to the Card Game API!2"} 
 
 @app.get("/")
 async def get():

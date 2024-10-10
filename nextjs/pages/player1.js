@@ -1,4 +1,3 @@
-//pages/player1
 import { useEffect, useState } from 'react';
 
 const Player1 = () => {
@@ -12,7 +11,7 @@ const Player1 = () => {
             const response = await fetch('http://localhost:8000/game/state');
             const data = await response.json();
             console.log('API Response:', data); // Log the entire response
-            
+
             // Check if players exist and assign cards
             if (data.players && data.players.length > playerId) {
                 console.log('Player cards:', data.players[playerId].cards); // Log player's cards
@@ -31,6 +30,8 @@ const Player1 = () => {
 
     useEffect(() => {
         fetchGameState();
+        const intervalId = setInterval(fetchGameState, 5000); // Auto-refresh every 5 seconds
+        return () => clearInterval(intervalId); // Cleanup interval on component unmount
     }, []);
 
     const playCard = async (cardToPlay) => {
@@ -57,6 +58,7 @@ const Player1 = () => {
 
     const Card = ({ card }) => (
         <div
+            onClick={() => playCard(card)} // Make the card clickable
             style={{
                 display: 'inline-block',
                 margin: '10px',
@@ -64,6 +66,7 @@ const Player1 = () => {
                 border: '1px solid #ccc',
                 borderRadius: '5px',
                 backgroundColor: '#fff',
+                cursor: 'pointer' // Add cursor pointer to show it's clickable
             }}
         >
             {card}
@@ -86,18 +89,6 @@ const Player1 = () => {
                     <Card key={index} card={card} />
                 ))}
             </div>
-            <button
-                onClick={() => {
-                    const cardToPlay = prompt("Enter the card you want to play (e.g., '2 of Hearts'):");
-                    if (cardToPlay && playerCards.includes(cardToPlay.trim())) { // Trim input to avoid space issues
-                        playCard(cardToPlay.trim());
-                    } else {
-                        alert("You don't have that card!");
-                    }
-                }}
-            >
-                Play Card
-            </button>
         </div>
     );
 };
