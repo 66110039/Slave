@@ -29,6 +29,7 @@ class CardGame:
         self.players = [Player(i) for i in range(4)]
         self.table = []
         self.finished_players = []  # To track the order of players finishing
+        self.global_message = ""  # Global message to broadcast to all players
         self.shuffle_deck()
         self.deal_cards()
 
@@ -56,6 +57,7 @@ class CardGame:
         self.deal_cards()  # Deal cards again
         self.table = []  # Clear the table
         self.finished_players = []  # Clear the finished players list
+        self.global_message = ""  # Clear the global message
 
 
 game = CardGame()
@@ -71,15 +73,17 @@ app.add_middleware(
 app.include_router(router, prefix="/api")
 app.include_router(leaderboard_router, prefix="/api")
 
+# Suit ranking: 's' > 'h' > 'd' > 'c'
+suit_ranking = {'s': 4, 'h': 3, 'd': 2, 'c': 1}
+
 @app.get("/game/state")
 async def get_game_state():
     # Construct the game state response from the game instance
     return {
         "players": [{"id": player.id, "cards": player.cards, "points": player.points} for player in game.players],
-        "table": game.table
+        "table": game.table,
+        "global_message": game.global_message  # Include global message in the state
     }
-# Suit ranking: 's' > 'h' > 'd' > 'c'
-suit_ranking = {'s': 4, 'h': 3, 'd': 2, 'c': 1}
 
 @app.post("/game/play")
 async def play_card(play_card_request: PlayCardRequest):
@@ -146,18 +150,22 @@ async def play_card(play_card_request: PlayCardRequest):
         # If three players finished, end the game and reset
         if len(game.finished_players) == 3:
             message = {
-                "message": f"Player {player_id} played {card}. Game over! Scores: "
-                           f"Player {game.finished_players[0]} (10 pts), Player {game.finished_players[1]} (5 pts), "
-                           f"Player {game.finished_players[2]} (3 pts).",
+                "message": f"Player {player_id + 1} played {card}. Game over! Scores: "
+                           f"Player {game.finished_players[0] + 1} (10 pts), Player {game.finished_players[1] + 1} (5 pts), "
+                           f"Player {game.finished_players[2] + 1} (3 pts).",
                 "player_cards": player.cards,
                 "table": game.table,
                 "reset": "Game will reset now."
             }
+            game.global_message = message['message']  # Broadcast final message to all
             game.reset_game()  # Reset the game after displaying the final message
             return message
 
+        message = f"Player {player_id + 1} played {card}. It's the highest card! The table is cleared."
+        game.global_message = message  # Update global game message
+
         return {
-            "message": f"Player {player_id} played {card}. It's the highest card! The table is cleared.",
+            "message": message,
             "player_cards": player.cards,
             "table": game.table
         }
@@ -182,22 +190,25 @@ async def play_card(play_card_request: PlayCardRequest):
     # If three players finished, end the game and reset
     if len(game.finished_players) == 3:
         message = {
-            "message": f"Player {player_id} played {card}. Game over! Scores: "
-                       f"Player {game.finished_players[0]} (10 pts), Player {game.finished_players[1]} (5 pts), "
-                       f"Player {game.finished_players[2]} (3 pts).",
+            "message": f"Player {player_id + 1} played {card}. Game over! Scores: "
+                       f"Player {game.finished_players[0] + 1} (10 pts), Player {game.finished_players[1] + 1} (5 pts), "
+                       f"Player {game.finished_players[2] + 1} (3 pts).",
             "player_cards": player.cards,
             "table": game.table,
             "reset": "Game will reset now."
         }
+        game.global_message = message['message']  # Broadcast final message to all
         game.reset_game()  # Reset the game after displaying the final message
         return message
 
+    message = f"Player {player_id + 1} played {card}"
+    game.global_message = message  # Update global game message
+
     return {
-        "message": f"Player {player_id} played {card}",
+        "message": message,
         "player_cards": player.cards,
         "table": game.table
     }
-
 
 @app.get("/api/total_players")
 async def get_total_players():

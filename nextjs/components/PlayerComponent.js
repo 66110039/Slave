@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 
 const PlayerComponent = ({ playerId, playerName }) => {
     const [playerCards, setPlayerCards] = useState([]);
-    const [tableCards, setTableCards] = useState([]); 
-    const [errorMessage, setErrorMessage] = useState(''); 
-    const [gameMessage, setGameMessage] = useState(''); // New state for game messages
+    const [tableCards, setTableCards] = useState([]);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [gameMessage, setGameMessage] = useState(''); // Global game message
     const [gameOver, setGameOver] = useState(false); // State to track if the game is over
 
     const fetchGameState = async () => {
@@ -12,15 +12,22 @@ const PlayerComponent = ({ playerId, playerName }) => {
             const response = await fetch('http://localhost:8000/game/state');
             const data = await response.json();
 
+            // Update the player's cards
             if (data.players && data.players.length > playerId) {
                 setPlayerCards(data.players[playerId].cards);
             } else {
                 console.error('Player not found in response:', playerId);
             }
 
+            // Update the cards on the table
             setTableCards(data.table || []);
 
-            // Check for game over conditions
+            // Update the game message (this will now apply to all players)
+            if (data.global_message) {
+                setGameMessage(data.global_message);
+            }
+
+            // Check for game-over conditions
             const finishedPlayers = data.players.filter(player => player.finished).length;
             if (finishedPlayers >= 3) {
                 setGameMessage("Game over! Resetting...");
@@ -41,7 +48,7 @@ const PlayerComponent = ({ playerId, playerName }) => {
 
     useEffect(() => {
         fetchGameState();
-        const intervalId = setInterval(fetchGameState, 5000);
+        const intervalId = setInterval(fetchGameState, 2000); // Poll game state every 2 seconds
         return () => clearInterval(intervalId);
     }, []);
 
@@ -54,7 +61,7 @@ const PlayerComponent = ({ playerId, playerName }) => {
                 },
                 body: JSON.stringify({ player_id: playerId, card: cardToPlay }),
             });
-    
+
             const result = await response.json(); // Get the response message
 
             if (response.ok) {
@@ -77,13 +84,13 @@ const PlayerComponent = ({ playerId, playerName }) => {
                 cursor: 'pointer'
             }}
         >
-            <img 
-                src={`/cards/${card}.png`} 
-                alt={card} 
+            <img
+                src={`/cards/${card}.png`}
+                alt={card}
                 style={{
                     width: '100px',
                     borderRadius: '8px'
-                }} 
+                }}
             />
         </div>
     );
