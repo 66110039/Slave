@@ -1,0 +1,45 @@
+.vinyl {
+    width: 200px; /* Set the size of the vinyl */
+    height: 200px;
+    border-radius: 50%; /* Make it circular */
+    border: 10px solid #000; /* Black border to represent the vinyl edge */
+    display: inline-block;
+    position: relative;
+    overflow: hidden; /* Hide overflow to keep the circle shape */
+    animation: spin 5s linear infinite; /* Spinning animation */
+  }
+  
+  .albumCover {
+    width: 100%; /* Cover the vinyl */
+    height: 100%;
+    border-radius: 50%; /* Make it circular */
+    object-fit: cover; /* Cover the entire area */
+    position: absolute; /* Position it inside the vinyl */
+    top: 0;
+    left: 0;
+  }
+  
+  @keyframes spin {
+    from {
+      transform: rotate(0deg); /* Start rotation */
+    }
+    to {
+      transform: rotate(360deg); /* Complete rotation */
+    }
+  }
+  
+  .spotifyPopup {
+    position: absolute;
+    top: 80px; /* Move it further down to avoid the navigation bar */
+    left: 10px; /* Adjust distance from left */
+    background-color: white; /* Background color for the pop-up */
+    border: 2px solid black; /* Add a border to make it stand out */
+    padding: 20px; /* Add some padding inside the pop-up */
+    z-index: 1000; /* Make sure it's on top of other elements */
+    border-radius: 10px; /* Optional: add rounded corners */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Optional: add a shadow for depth */
+  }
+  .toggleButton {
+    font-size: 1.2em;
+    cursor: pointer;
+  }

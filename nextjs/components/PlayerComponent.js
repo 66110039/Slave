@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import styles from './PlayerComponent.module.css'; // Import your CSS module for styles
 
 const PlayerComponent = ({ playerId, playerName }) => {
   // Game state
@@ -13,6 +14,7 @@ const PlayerComponent = ({ playerId, playerName }) => {
   const [user, setUser] = useState(null);
   const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showSpotify, setShowSpotify] = useState(true); // New state to show/hide Spotify player
 
   // Fetch game state every 2 seconds
   useEffect(() => {
@@ -133,6 +135,7 @@ const PlayerComponent = ({ playerId, playerName }) => {
                 name: data.item.name,
                 artist: data.item.artists.map((artist) => artist.name).join(', '),
                 album: data.item.album.name,
+                albumCover: data.item.album.images[0].url, // Get the album cover image URL
               });
               setIsPlaying(data.is_playing);
             } else {
@@ -158,9 +161,17 @@ const PlayerComponent = ({ playerId, playerName }) => {
   // Spotify: Login handler
   const handleLogin = () => {
     const clientId = '81b60e84841f4fcb9f94cf15e3d6ca6a'; // Replace with your Spotify Client ID
-    const redirectUri = `http://localhost:3000/player${playerId + 1}`; // Dynamic redirect URI for each player
+
+    // Dynamically set the redirect URI based on the playerId
+    const redirectUri = `http://localhost:3000/player${playerId + 1}`;
+
     const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user-read-private%20user-read-email%20user-read-playback-state%20user-read-currently-playing`;
     window.location.href = authUrl;
+  };
+
+  // Toggle Spotify visibility
+  const toggleSpotify = () => {
+    setShowSpotify(!showSpotify);
   };
 
   return (
@@ -177,30 +188,43 @@ const PlayerComponent = ({ playerId, playerName }) => {
 
       {gameOver && <button onClick={resetGame}>Reset Game</button>}
 
-      {/* Spotify Integration */}
-      <div style={{ marginTop: '40px' }}>
-        <h2>Spotify Integration</h2>
-        {accessToken ? (
+      {/* Spotify Integration as a popup with toggle */}
+      <div className={styles.spotifyPopup}>
+        <div className={styles.toggleButton} onClick={toggleSpotify}>
+          {showSpotify ? '▼' : '▲'} Spotify Integration
+        </div>
+        {showSpotify && (
           <div>
-            <h3>Welcome, {user?.display_name}!</h3>
-            {currentlyPlaying ? (
-              isPlaying ? (
-                <div>
-                  <h4>Currently Playing:</h4>
-                  <p>
-                    <strong>{currentlyPlaying.name}</strong> by {currentlyPlaying.artist}
-                  </p>
-                  <p>Album: {currentlyPlaying.album}</p>
-                </div>
-              ) : (
-                <p>No song is currently playing.</p>
-              )
+            {accessToken ? (
+              <div>
+                <h3>Welcome, {user?.display_name}!</h3>
+                {currentlyPlaying ? (
+                  isPlaying ? (
+                    <div>
+                      <h4>Currently Playing:</h4>
+                      <div className={styles.vinyl}>
+                        <img
+                          className={styles.albumCover}
+                          src={currentlyPlaying.albumCover}
+                          alt={currentlyPlaying.album}
+                        />
+                      </div>
+                      <p>
+                        <strong>{currentlyPlaying.name}</strong> by {currentlyPlaying.artist}
+                      </p>
+                      <p>Album: {currentlyPlaying.album}</p>
+                    </div>
+                  ) : (
+                    <p>No song is currently playing.</p>
+                  )
+                ) : (
+                  <p>No track is currently playing.</p>
+                )}
+              </div>
             ) : (
-              <p>No track is currently playing.</p>
+              <button onClick={handleLogin}>Login with Spotify</button>
             )}
           </div>
-        ) : (
-          <button onClick={handleLogin}>Login with Spotify</button>
         )}
       </div>
     </div>
