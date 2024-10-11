@@ -198,6 +198,26 @@ async def play_card(play_card_request: PlayCardRequest):
         "table": game.table
     }
 
+
+@app.get("/api/total_players")
+async def get_total_players():
+    query = "SELECT COUNT(*) AS total_players FROM users"
+    result = await database.fetch_one(query=query)
+    print(f"Total Players from Database: {result['total_players']}")  # Add logging
+    return {"total_players": result["total_players"]}
+
+@app.get("/api/recent_users_count")
+async def get_recent_users_count():
+    from datetime import datetime, timedelta
+    # Get the start of the week (Monday)
+    start_of_week = datetime.now() - timedelta(days=datetime.now().weekday())
+    query = "SELECT COUNT(*) AS recent_users_count FROM users WHERE created_at >= :start_of_week"
+    values = {"start_of_week": start_of_week}
+    result = await database.fetch_one(query=query, values=values)
+    print(f"New Players Count: {result['recent_users_count']}")  # Debugging line
+    return {"recent_users_count": result["recent_users_count"]}
+
+
 @app.post("/game/reset")
 async def reset_game():
     game.reset_game()
@@ -211,6 +231,9 @@ async def startup():
 async def shutdown():
     await disconnect_db()
 
+
+
 if __name__ == "__main__": 
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
