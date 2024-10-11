@@ -4,11 +4,8 @@ import {
   Toolbar,
   Typography,
   Button,
-  Menu,
-  MenuItem,
-  Box,
-  ListItemIcon,
   IconButton,
+  Box,
 } from "@mui/material";
 import { useRouter } from "next/router";
 import HomeIcon from "@mui/icons-material/Home"; // Home icon for navigation
@@ -34,10 +31,16 @@ const NavigationLayout = ({ children }) => {
   return (
     <>
       {/* Updated AppBar with new background color and styles */}
-      <AppBar position="sticky" sx={{ backgroundColor: "#FFA726", boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)" }}>
-        <Toolbar>
+      <AppBar
+        position="sticky"
+        sx={{
+          backgroundColor: "#FFA726",
+          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+        }}
+      >
+        <Toolbar sx={{ position: "relative" }}>
           {/* Home Button with Home Icon */}
-          <IconButton onClick={() => router.push('/')} sx={{ color: "#ffffff" }}>
+          <IconButton onClick={() => router.push("/")} sx={{ color: "#ffffff" }}>
             <HomeIcon fontSize="large" />
           </IconButton>
 
@@ -45,7 +48,9 @@ const NavigationLayout = ({ children }) => {
           <Typography
             variant="h5"
             sx={{
-              flexGrow: 1,
+              position: "absolute",
+              left: "50%",
+              transform: "translateX(-50%)", // Center horizontally
               fontSize: "22px",
               fontWeight: "bold",
               color: "#ffffff",
@@ -57,12 +62,14 @@ const NavigationLayout = ({ children }) => {
           </Typography>
 
           {/* Register and Login Buttons with updated styles */}
-          <StyledButton onClick={() => router.push("/register")}>
-            Register
-          </StyledButton>
-          <StyledButton onClick={() => router.push("/login")}>
-            Login
-          </StyledButton>
+          <Box sx={{ marginLeft: "auto" }}>
+            <StyledButton onClick={() => router.push("/register")}>
+              Register
+            </StyledButton>
+            <StyledButton onClick={() => router.push("/login")}>
+              Login
+            </StyledButton>
+          </Box>
         </Toolbar>
       </AppBar>
 
