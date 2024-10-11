@@ -1,3 +1,4 @@
+### This is all my main.py code 
 from fastapi import FastAPI, HTTPException 
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,13 +9,11 @@ from database import *
 from routes.users import router
 from routes.leaderboard import router as leaderboard_router
 
-
 app = FastAPI()
 
 class PlayCardRequest(BaseModel):
     player_id: int
     card: str
-
 
 class Player:
     def __init__(self, player_id):
@@ -59,8 +58,45 @@ class CardGame:
         self.finished_players = []  # Clear the finished players list
         self.global_message = ""  # Clear the global message
 
-
 game = CardGame()
+
+# Database interaction functions
+async def create_new_game():
+    query = "INSERT INTO games (start_time, status) VALUES (:start_time, :status) RETURNING game_id"
+    values = {"start_time": datetime.now(), "status": "ongoing"}
+    result = await database.fetch_one(query=query, values=values)
+    print(f"New game created with ID: {result['game_id']}")
+    return result["game_id"]
+
+async def end_game(game_id, winner_id):
+    end_time = datetime.now()
+    query = """
+        UPDATE games
+        SET end_time = :end_time, duration = :duration, status = 'completed', winner_id = :winner_id
+        WHERE game_id = :game_id
+    """
+    values = {
+        "end_time": end_time,
+        "duration": end_time - game.start_time,
+        "winner_id": winner_id,
+        "game_id": game_id
+    }
+    await database.execute(query=query, values=values)
+    print(f"Game {game_id} ended and updated in the database.")
+
+async def record_player_performance(game_id, player_id, score, result):
+    query = """
+        INSERT INTO game_history (game_id, player_id, score, result)
+        VALUES (:game_id, :player_id, :score, :result)
+    """
+    values = {
+        "game_id": game_id,
+        "player_id": player_id,
+        "score": score,
+        "result": result
+    }
+    await database.execute(query=query, values=values)
+    print(f"Performance of player {player_id} recorded in game {game_id}.")
 
 app.add_middleware(
     CORSMiddleware,
@@ -75,6 +111,16 @@ app.include_router(leaderboard_router, prefix="/api")
 
 # Suit ranking: 's' > 'h' > 'd' > 'c'
 suit_ranking = {'s': 4, 'h': 3, 'd': 2, 'c': 1}
+
+@app.post("/game/start")
+async def start_game():
+    try:
+        game_id = await create_new_game()
+        game.reset_game()
+        return {"message": f"New game started with game_id {game_id}"}
+    except Exception as e:
+        print(f"Error starting game: {e}")
+        raise HTTPException(status_code=500, detail="Failed to start the game")
 
 @app.get("/game/state")
 async def get_game_state():
@@ -210,6 +256,18 @@ async def play_card(play_card_request: PlayCardRequest):
         "table": game.table
     }
 
+@app.post("/game/end")
+async def end_game_endpoint():
+    winner_player_id = game.finished_players[0]  # Get the winner's ID
+    await end_game(game.game_id, winner_player_id)  # Update the game record
+
+    # Record each player's performance
+    for player in game.players:
+        result = "win" if player.id == winner_player_id else "lose"
+        await record_player_performance(game.game_id, player.id, player.points, result)
+    
+    return {"message": "Game ended and results recorded"}
+
 @app.get("/api/total_players")
 async def get_total_players():
     query = "SELECT COUNT(*) AS total_players FROM users"
@@ -228,7 +286,6 @@ async def get_recent_users_count():
     print(f"New Players Count: {result['recent_users_count']}")  # Debugging line
     return {"recent_users_count": result["recent_users_count"]}
 
-
 @app.post("/game/reset")
 async def reset_game():
     game.reset_game()
@@ -242,9 +299,6 @@ async def startup():
 async def shutdown():
     await disconnect_db()
 
-
-
 if __name__ == "__main__": 
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
