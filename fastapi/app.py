@@ -22,7 +22,7 @@ app.include_router(leaderboard_router, prefix="/api")
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to the Card Game API!"} 
+    return {"message": "This app.py"} 
 
 @app.on_event("startup")
 async def startup():

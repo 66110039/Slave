@@ -3,6 +3,11 @@ from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import random
+from typing import Union
+from database import *
+from routes.users import router
+from routes.leaderboard import router as leaderboard_router
+
 
 app = FastAPI()
 
@@ -62,6 +67,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(router, prefix="/api")
+app.include_router(leaderboard_router, prefix="/api")
 
 @app.get("/game/state")
 async def get_game_state():
@@ -195,6 +203,13 @@ async def reset_game():
     game.reset_game()
     return {"message": "Game has been reset!"}
 
+@app.on_event("startup")
+async def startup():
+    await connect_db()
+
+@app.on_event("shutdown")
+async def shutdown():
+    await disconnect_db()
 
 if __name__ == "__main__": 
     import uvicorn
