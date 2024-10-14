@@ -294,6 +294,13 @@ async def get_recent_users_count():
     print(f"New Players Count: {result['recent_users_count']}")  # Debugging line
     return {"recent_users_count": result["recent_users_count"]}
 
+@app.get("/api/total_games")
+async def get_total_games():
+    query = "SELECT COUNT(*) AS total_games FROM games"
+    result = await database.fetch_one(query=query)
+    return {"total_games": result["total_games"]}
+
+
 @app.post("/game/reset")
 async def reset_game():
     game.reset_game()  # This resets the game
