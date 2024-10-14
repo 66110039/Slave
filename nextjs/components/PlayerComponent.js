@@ -1,13 +1,19 @@
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router'; // Import useRouter for redirection
 import styles from './PlayerComponent.module.css'; // Import your CSS module for styles
 
 const PlayerComponent = ({ playerId, playerName }) => {
+  const router = useRouter(); // Initialize router for redirection
+  const { gameId } = router.query; // Assuming gameId is passed via URL query
+
   // Game state
   const [playerCards, setPlayerCards] = useState([]);
   const [tableCards, setTableCards] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [gameMessage, setGameMessage] = useState('');
-  const [gameOver, setGameOver] = useState(false);
+  const [gameOver, setGameOver] = useState(false); // Tracks if the game is over
+  const [showGameEndButton, setShowGameEndButton] = useState(false); // For the "Game End" button
+  const [showGameSummaryButton, setShowGameSummaryButton] = useState(true); // Always showing the "Game Summary" button
 
   // Spotify state
   const [accessToken, setAccessToken] = useState(null);
@@ -34,9 +40,9 @@ const PlayerComponent = ({ playerId, playerName }) => {
 
         const finishedPlayers = data.players.filter(player => player.finished).length;
         if (finishedPlayers >= 3) {
-          setGameMessage("Game over! Resetting...");
-          setGameOver(true);
-          setTimeout(resetGame, 3000);
+          setGameMessage("Game over!");
+          setGameOver(true); // Mark the game as over
+          setShowGameEndButton(true); // Show the "Game End" button
         } else if (finishedPlayers === 1) {
           setGameMessage("Only one player left! Reset the game.");
           setGameOver(true);
@@ -54,6 +60,39 @@ const PlayerComponent = ({ playerId, playerName }) => {
     return () => clearInterval(intervalId);
   }, [playerId]);
 
+  // Function to go to Game End page
+  const goToGameEnd = () => {
+    router.push(`/game-end?gameId=${gameId}`);
+  };
+
+  const goToGameSummary = async () => {
+    try {
+      // API request to mark the game as ended, sending winner_id as a query parameter
+      const response = await fetch(`/api/game/end/${gameId}?winner_id=${playerId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Game ended successfully:', data);
+  
+        // Navigate to the Game End Summary (gameEnd.js)
+        router.push(`/gameEnd?gameId=${gameId}`);
+      } else {
+        setErrorMessage('Failed to end the game.');
+        const errorData = await response.text();
+        console.error('Failed to end the game:', errorData);
+      }
+    } catch (error) {
+      setErrorMessage('Error ending the game.');
+      console.error('Error ending the game:', error);
+    }
+  };
+  
+  
   const playCard = async (cardToPlay) => {
     try {
       const response = await fetch('http://localhost:8000/game/play', {
@@ -77,17 +116,26 @@ const PlayerComponent = ({ playerId, playerName }) => {
   };
 
   const resetGame = async () => {
+    console.log("Reset button clicked");  // Debugging line
     try {
-      const response = await fetch('http://localhost:8000/game/reset', { method: 'POST' });
+      const response = await fetch('/api/game/reset', {
+        method: 'POST',  // Ensure this is a POST request
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       if (response.ok) {
         setGameMessage('Game has been reset!');
-        fetchGameState();
+        fetchGameState();  // Refresh the game state after reset
+      } else {
+        setGameMessage('Failed to reset game.');
       }
     } catch (error) {
       console.error('Error resetting game:', error);
+      setGameMessage('Error resetting game. Please try again.');
     }
   };
-
+  
   const Card = ({ card }) => (
     <div onClick={() => playCard(card)} style={{ display: 'inline-block', margin: '10px', cursor: 'pointer' }}>
       <img src={`/cards/${card}.png`} alt={card} style={{ width: '100px', borderRadius: '8px' }} />
@@ -186,7 +234,33 @@ const PlayerComponent = ({ playerId, playerName }) => {
       <h2>Cards on the Table:</h2>
       <div>{tableCards.map((card, index) => <Card key={index} card={card} />)}</div>
 
-      {gameOver && <button onClick={resetGame}>Reset Game</button>}
+      {/* Show the "Game End" button if the game is over */}
+      {showGameEndButton && (
+        <button
+          onClick={goToGameEnd}
+          style={{ marginTop: '20px', padding: '10px 20px', backgroundColor: 'blue', color: 'white', cursor: 'pointer' }}
+        >
+          View Game End
+        </button>
+      )}
+
+      {/* Always Show the "Game Summary" button */}
+      <button
+        onClick={goToGameSummary}
+        style={{ marginTop: '10px', padding: '10px 20px', backgroundColor: 'green', color: 'white', cursor: 'pointer' }}
+      >
+        View Game Summary
+      </button>
+
+      {/* Reset button will show after the game is over */}
+      {gameOver && (
+        <button
+          onClick={resetGame}
+          style={{ marginTop: '10px', padding: '10px 20px', cursor: 'pointer' }}
+        >
+          Reset Game
+        </button>
+      )}
 
       {/* Spotify Integration as a popup with toggle */}
       <div className={styles.spotifyPopup}>
