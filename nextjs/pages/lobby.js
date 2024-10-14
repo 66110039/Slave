@@ -8,12 +8,49 @@ const seats = [1, 2, 3, 4]; // Define seats
 const LobbyPage = () => {
   const router = useRouter(); // Initialize useRouter for navigation
 
+  // Function to navigate to the player page based on seat number
   const handleJoinGame = (seatNumber) => {
     console.log(`Joining Seat ${seatNumber}`);
+    router.push(`/player${seatNumber}`); // Navigate to the respective player page
   };
 
-  const handleStartGame = () => {
-    router.push('/player1'); // Navigate to player1.js page
+  const handleStartGame = async () => {
+    try {
+      // First, reset the game before starting
+      const resetResponse = await fetch('http://localhost:8000/game/reset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!resetResponse.ok) {
+        console.error('Failed to reset the game', await resetResponse.text());
+        return;  // Stop if the game reset fails
+      }
+
+      console.log('Game reset successfully');
+
+      // Then, start the game after reset
+      const startResponse = await fetch('http://localhost:8000/api/start-game', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (startResponse.ok) {
+        const data = await startResponse.json();
+        console.log('Game started successfully:', data);
+
+        // Navigate to player1.js page after the game starts successfully
+        router.push('/player1');
+      } else {
+        console.error('Failed to start the game', await startResponse.text());
+      }
+    } catch (error) {
+      console.error('Error during start game:', error);
+    }
   };
 
   return (
@@ -84,7 +121,7 @@ const LobbyPage = () => {
                 {/* Join Button */}
                 <Button
                   variant="contained"
-                  onClick={() => handleJoinGame(seat)}
+                  onClick={() => handleJoinGame(seat)} // Pass seat number to handleJoinGame
                   sx={{
                     mt: 2,
                     backgroundColor: '#FFA726',
@@ -117,7 +154,7 @@ const LobbyPage = () => {
                 boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.15)',
               },
             }}
-            onClick={handleStartGame} // Use the navigation function on click
+            onClick={handleStartGame}
           >
             Start Game
           </Button>
