@@ -75,3 +75,24 @@ async def insert_leaderboard(user_id: int, total_wins: int, highest_score: int):
 async def get_all_leaderboard_entries():
     query = "SELECT * FROM leaderboard ORDER BY highest_score DESC"
     return await database.fetch_all(query=query)
+
+# Insert a new game with the start time
+async def insert_game(status: str):
+    query = """
+    INSERT INTO games (start_time, status)
+    VALUES (NOW(), :status)
+    RETURNING game_id, start_time, status
+    """
+    values = {"status": status}
+    return await database.fetch_one(query=query, values=values)
+
+# Function to update the game status, end time, and winner_id when a game finishes
+async def end_game(game_id: int, winner_id: int):
+    query = """
+    UPDATE games
+    SET end_time = NOW(), status = 'completed', winner_id = :winner_id
+    WHERE game_id = :game_id
+    RETURNING game_id, end_time, status, winner_id
+    """
+    values = {"game_id": game_id, "winner_id": winner_id}
+    return await database.fetch_one(query=query, values=values)
