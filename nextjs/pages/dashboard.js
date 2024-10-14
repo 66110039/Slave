@@ -7,7 +7,6 @@ import HistoryIcon from '@mui/icons-material/History';
 
 // Static overview data for other cards (placeholders)
 const overviewData = [
-  { title: 'Games Played', value: 300, icon: <SportsEsportsIcon sx={{ fontSize: 60 }} /> },
   { title: 'Top Player', value: 'Player1', icon: <StarIcon sx={{ fontSize: 60 }} /> },
 ];
 
@@ -26,6 +25,7 @@ const leaderboardData = [
 const AdminPage = () => {
   const [totalPlayers, setTotalPlayers] = useState(0);
   const [recentUsersCount, setRecentUsersCount] = useState(0);
+  const [totalGames, setTotalGames] = useState(0); // New state for total games
 
   useEffect(() => {
     // Fetch total players from the backend API
@@ -39,6 +39,12 @@ const AdminPage = () => {
       .then((response) => response.json())
       .then((data) => setRecentUsersCount(data.recent_users_count))
       .catch((error) => console.error('Error fetching recent user activity:', error));
+
+    // Fetch total games count from the backend API
+    fetch('/api/total_games')
+      .then((response) => response.json())
+      .then((data) => setTotalGames(data.total_games))  // Update totalGames state
+      .catch((error) => console.error('Error fetching total games:', error));
   }, []);
 
   return (
@@ -71,6 +77,34 @@ const AdminPage = () => {
             </Typography>
             <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#BF360C', textAlign: 'center' }}>
               Total Players
+            </Typography>
+          </Paper>
+        </Grid>
+
+        {/* Total Games Card */}
+        <Grid item xs={12} sm={6} md={3}>
+          <Paper
+            elevation={4}
+            sx={{
+              width: '280px',
+              height: '200px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              borderRadius: '16px',
+              backgroundColor: '#FFE0B2',
+              boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15)',
+              padding: 2,
+              margin: '0 auto',
+            }}
+          >
+            <SportsEsportsIcon sx={{ fontSize: 80, mb: 1 }} />
+            <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#E65100', mt: 1, textAlign: 'center' }}>
+              {totalGames}  {/* Display total games */}
+            </Typography>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#BF360C', textAlign: 'center' }}>
+              Total Games
             </Typography>
           </Paper>
         </Grid>
