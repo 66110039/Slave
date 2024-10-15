@@ -96,3 +96,18 @@ async def end_game(game_id: int, winner_id: int):
     """
     values = {"game_id": game_id, "winner_id": winner_id}
     return await database.fetch_one(query=query, values=values)
+
+# Function to update player score and total wins
+async def update_player_score_and_wins(player_id: int, points: int):
+    query = """
+    INSERT INTO player_scores (player_id, total_score, total_wins)
+    VALUES (:player_id, :points, 1)
+    ON CONFLICT (player_id)
+    DO UPDATE SET 
+        total_score = player_scores.total_score + :points,
+        total_wins = player_scores.total_wins + 1
+    RETURNING player_id, total_score, total_wins
+    """
+    values = {"player_id": player_id, "points": points}
+    return await database.fetch_one(query=query, values=values)
+
