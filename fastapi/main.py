@@ -63,7 +63,7 @@ game = CardGame()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins or specify your React app's URL
+    allow_origins=["http://localhost:3000"],  # Allow all origins or specify your React app's URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -84,7 +84,6 @@ async def start_game():
         return {"message": "Game started successfully", "game_id": game_record["game_id"], "start_time": game_record["start_time"]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
     
 @app.get("/game/state")
 async def get_game_state():
@@ -239,24 +238,30 @@ async def play_card(play_card_request: PlayCardRequest):
         "table": game.table
     }
 
-@app.post("/api/game/end/{game_id}")
+@app.post("/game/end/{game_id}")
 async def end_game(game_id: int, winner_id: int):
     try:
-        # Update the game status to 'completed', record the end time, and set the winner
+        # Update the game with the end time, duration, and winner_id
         query = """
             UPDATE games
-            SET end_time = NOW(), status = 'completed', winner_id = :winner_id
+            SET end_time = NOW(), duration = NOW() - start_time, status = 'completed', winner_id = :winner_id
             WHERE game_id = :game_id
+            RETURNING game_id, end_time, duration, winner_id
         """
         values = {"game_id": game_id, "winner_id": winner_id}
-        await database.execute(query=query, values=values)
+        result = await database.fetch_one(query=query, values=values)
 
-        return {"message": "Game ended successfully", "game_id": game_id, "winner_id": winner_id}
-    
+        # Update the player's total score and total wins
+        await update_player_score_and_wins(winner_id, 10)
+
+        return {
+            "message": "Game ended successfully",
+            "game_id": result["game_id"],
+            "duration": result["duration"],
+            "winner_id": result["winner_id"]
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
 
 @app.get("/api/game/status/{game_id}")
 async def get_game_status(game_id: int):
@@ -299,6 +304,23 @@ async def get_total_games():
     query = "SELECT COUNT(*) AS total_games FROM games"
     result = await database.fetch_one(query=query)
     return {"total_games": result["total_games"]}
+
+@app.get("/api/recent-game")
+async def get_recent_game():
+    try:
+        query = """
+        SELECT game_id FROM games
+        WHERE status = 'ongoing'
+        ORDER BY start_time DESC
+        LIMIT 1
+        """
+        recent_game = await database.fetch_one(query=query)
+        if not recent_game:
+            raise HTTPException(status_code=404, detail="No ongoing game found")
+        
+        return {"game_id": recent_game["game_id"]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/game/reset")
