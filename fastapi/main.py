@@ -322,6 +322,47 @@ async def get_recent_game():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/api/end-recent-game")
+async def end_recent_game(winner_id: int):
+    try:
+        # Fetch the most recent ongoing game
+        query = """
+        SELECT game_id FROM games
+        WHERE status = 'ongoing'
+        ORDER BY start_time DESC
+        LIMIT 1
+        """
+        recent_game = await database.fetch_one(query=query)
+        if not recent_game:
+            raise HTTPException(status_code=404, detail="No ongoing game found")
+
+        game_id = recent_game["game_id"]
+
+        # Update the game with the end time, duration, and winner_id
+        query = """
+            UPDATE games
+            SET end_time = NOW(), duration = NOW() - start_time, status = 'completed', winner_id = :winner_id
+            WHERE game_id = :game_id
+            RETURNING game_id, end_time, duration, winner_id
+        """
+        values = {"game_id": game_id, "winner_id": winner_id}
+        result = await database.fetch_one(query=query, values=values)
+
+        # Update the player's total score and total wins
+        await update_player_score_and_wins(winner_id, 10)
+
+        return {
+            "message": "Game ended successfully",
+            "game_id": result["game_id"],
+            "end_time": result["end_time"],
+            "duration": result["duration"],
+            "winner_id": result["winner_id"]
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 
 @app.post("/game/reset")
 async def reset_game():
