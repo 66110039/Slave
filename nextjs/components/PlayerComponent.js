@@ -68,19 +68,19 @@ const PlayerComponent = ({ playerId, playerName }) => {
   const goToGameSummary = async () => {
     try {
       // API request to mark the game as ended, sending winner_id as a query parameter
-      const response = await fetch(`/api/game/end/${gameId}?winner_id=${playerId}`, {
+      const response = await fetch(`/api/end-recent-game?winner_id=${playerId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         }
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         console.log('Game ended successfully:', data);
-  
+
         // Navigate to the Game End Summary (gameEnd.js)
-        router.push(`/gameEnd?gameId=${gameId}`);
+        router.push(`/gameEnd?gameId=${data.game_id}`);
       } else {
         setErrorMessage('Failed to end the game.');
         const errorData = await response.text();
@@ -90,7 +90,9 @@ const PlayerComponent = ({ playerId, playerName }) => {
       setErrorMessage('Error ending the game.');
       console.error('Error ending the game:', error);
     }
-  };
+};
+
+
   
   
   const playCard = async (cardToPlay) => {
