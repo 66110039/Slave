@@ -6,10 +6,6 @@ import StarIcon from '@mui/icons-material/Star';
 import HistoryIcon from '@mui/icons-material/History';
 
 // Static overview data for other cards (placeholders)
-const overviewData = [
-  { title: 'Top Player', value: 'Player1', icon: <StarIcon sx={{ fontSize: 60 }} /> },
-];
-
 const recentActivityData = [
   { player: 'Player2', activity: 'Joined a game', timestamp: '2 hours ago' },
   { player: 'Player3', activity: 'Reached top score', timestamp: '1 day ago' },
@@ -26,6 +22,7 @@ const AdminPage = () => {
   const [totalPlayers, setTotalPlayers] = useState(0);
   const [recentUsersCount, setRecentUsersCount] = useState(0);
   const [totalGames, setTotalGames] = useState(0); // New state for total games
+  const [topPlayer, setTopPlayer] = useState({ player_id: '', total_score: 0 }); // State for top player
 
   useEffect(() => {
     // Fetch total players from the backend API
@@ -45,6 +42,12 @@ const AdminPage = () => {
       .then((response) => response.json())
       .then((data) => setTotalGames(data.total_games))  // Update totalGames state
       .catch((error) => console.error('Error fetching total games:', error));
+
+    // Fetch top player from the backend API
+    fetch('/api/top_player')
+      .then((response) => response.json())
+      .then((data) => setTopPlayer(data)) // Update top player state
+      .catch((error) => console.error('Error fetching top player:', error));
   }, []);
 
   return (
@@ -76,7 +79,7 @@ const AdminPage = () => {
               {totalPlayers}
             </Typography>
             <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#BF360C', textAlign: 'center' }}>
-              Total Players
+              Total Users
             </Typography>
           </Paper>
         </Grid>
@@ -109,20 +112,33 @@ const AdminPage = () => {
           </Paper>
         </Grid>
 
-        {/* Other Overview Cards */}
-        {overviewData.map((data, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
-            <Paper elevation={4} sx={{ width: '280px', height: '200px', padding: 3, borderRadius: '16px', backgroundColor: '#FFE0B2', margin: '0 auto' }}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-                {data.icon}
-              </Box>
-              <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#E65100', mt: 2, mb: 1, textAlign: 'center' }}>
-                {data.value}
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#BF360C', textAlign: 'center' }}>{data.title}</Typography>
-            </Paper>
-          </Grid>
-        ))}
+        {/* Top Player Card */}
+        <Grid item xs={12} sm={6} md={3}>
+          <Paper
+            elevation={4}
+            sx={{
+              width: '280px',
+              height: '200px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              borderRadius: '16px',
+              backgroundColor: '#FFE0B2',
+              boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15)',
+              padding: 2,
+              margin: '0 auto',
+            }}
+          >
+            <StarIcon sx={{ fontSize: 80, mb: 1 }} />
+            <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#E65100', mt: 1, textAlign: 'center' }}>
+              Player {topPlayer.player_id}  {/* Display top player ID */}
+            </Typography>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#BF360C', textAlign: 'center' }}>
+              Score: {topPlayer.total_score}  {/* Display top player score */}
+            </Typography>
+          </Paper>
+        </Grid>
 
         {/* Recent Activity Card */}
         <Grid item xs={12} sm={6} md={3}>
@@ -147,7 +163,7 @@ const AdminPage = () => {
               {recentUsersCount} New Players
             </Typography>
             <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#BF360C', textAlign: 'center' }}>
-              Recent Activity
+              Register this
             </Typography>
           </Paper>
         </Grid>
