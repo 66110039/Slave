@@ -111,3 +111,12 @@ async def update_player_score_and_wins(player_id: int, points: int):
     values = {"player_id": player_id, "points": points}
     return await database.fetch_one(query=query, values=values)
 
+# Function to insert player score for a specific game
+async def insert_game_player_score(game_id: int, player_id: int, score: int):
+    query = """
+    INSERT INTO game_player_scores (game_id, player_id, score)
+    VALUES (:game_id, :player_id, :score)
+    """
+    values = {"game_id": game_id, "player_id": player_id, "score": score}
+    await database.execute(query=query, values=values)
+
