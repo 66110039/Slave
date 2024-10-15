@@ -67,8 +67,8 @@ const PlayerComponent = ({ playerId, playerName }) => {
 
   const goToGameSummary = async () => {
     try {
-      // API request to mark the game as ended, sending winner_id as a query parameter
-      const response = await fetch(`/api/end-recent-game?winner_id=${playerId}`, {
+      // Adding 1 to the playerId to match the winner_id range in the database
+      const response = await fetch(`/api/end-recent-game?winner_id=${playerId + 1}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -91,6 +91,9 @@ const PlayerComponent = ({ playerId, playerName }) => {
       console.error('Error ending the game:', error);
     }
 };
+
+
+
 
 
   
