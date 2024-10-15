@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Button, Paper, Grid } from '@mui/material';
 import EventSeatIcon from '@mui/icons-material/EventSeat';
 import { useRouter } from 'next/router'; // Import the useRouter hook
@@ -7,31 +7,41 @@ const seats = [1, 2, 3, 4]; // Define seats
 
 const LobbyPage = () => {
   const router = useRouter(); // Initialize useRouter for navigation
+  const [gameId, setGameId] = useState(null); // Store gameId here
 
-  // Function to navigate to the player page based on seat number
+  // Fetch the most recent game ID on component mount
+  useEffect(() => {
+    const fetchRecentGameId = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/api/recent-game');
+        const data = await response.json();
+        if (response.ok) {
+          setGameId(data.game_id); // Set the recent game ID
+        } else {
+          console.error('No ongoing game found');
+        }
+      } catch (error) {
+        console.error('Error fetching recent game ID:', error);
+      }
+    };
+
+    fetchRecentGameId(); // Fetch the recent game ID when the page loads
+  }, []);
+
+  // Function to navigate to the player page based on seat number and gameId
   const handleJoinGame = (seatNumber) => {
-    console.log(`Joining Seat ${seatNumber}`);
-    router.push(`/player${seatNumber}`); // Navigate to the respective player page
+    if (gameId) {
+      const playerUrl = `/player${seatNumber}?gameId=${gameId}`;
+      console.log(`Navigating to: ${playerUrl}`);
+      router.push(playerUrl); // Navigate to the respective player page with gameId
+    } else {
+      console.error('Game ID is not available yet.');
+    }
   };
 
+  // Function to start the game (this was missing in your code)
   const handleStartGame = async () => {
     try {
-      // First, reset the game before starting
-      const resetResponse = await fetch('http://localhost:8000/game/reset', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!resetResponse.ok) {
-        console.error('Failed to reset the game', await resetResponse.text());
-        return;  // Stop if the game reset fails
-      }
-
-      console.log('Game reset successfully');
-
-      // Then, start the game after reset
       const startResponse = await fetch('http://localhost:8000/api/start-game', {
         method: 'POST',
         headers: {
@@ -42,9 +52,10 @@ const LobbyPage = () => {
       if (startResponse.ok) {
         const data = await startResponse.json();
         console.log('Game started successfully:', data);
+        setGameId(data.game_id); // Store the gameId here
 
         // Navigate to player1.js page after the game starts successfully
-        router.push('/player1');
+        router.push(`/player1?gameId=${data.game_id}`); // Pass the gameId to the player
       } else {
         console.error('Failed to start the game', await startResponse.text());
       }
@@ -122,9 +133,10 @@ const LobbyPage = () => {
                 <Button
                   variant="contained"
                   onClick={() => handleJoinGame(seat)} // Pass seat number to handleJoinGame
+                  disabled={!gameId} // Disable button until gameId is fetched
                   sx={{
                     mt: 2,
-                    backgroundColor: '#FFA726',
+                    backgroundColor: gameId ? '#FFA726' : '#B0BEC5',
                     color: '#ffffff',
                     '&:hover': {
                       backgroundColor: '#FF7043',
@@ -154,7 +166,7 @@ const LobbyPage = () => {
                 boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.15)',
               },
             }}
-            onClick={handleStartGame}
+            onClick={handleStartGame} // Call handleStartGame
           >
             Start Game
           </Button>
