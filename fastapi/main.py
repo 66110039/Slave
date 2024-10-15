@@ -8,8 +8,14 @@ from typing import Union
 from database import *
 from routes.users import router
 from routes.leaderboard import router as leaderboard_router
+from typing import List
 
 app = FastAPI()
+
+# Pydantic model to accept new activity data
+class PlayerActivityRequest(BaseModel):
+    player_id: int
+    activity: str
 
 class PlayCardRequest(BaseModel):
     player_id: int
@@ -78,12 +84,20 @@ suit_ranking = {'s': 4, 'h': 3, 'd': 2, 'c': 1}
 @app.post("/api/start-game")
 async def start_game():
     try:
+        # Reset the game before starting
+        game.reset_game()  # Resets deck, cards, players, and game state
+        
+        # Clear player points before starting a new game
+        for player in game.players:
+            player.points = 0  # Reset points for each player
+        
         # Insert the game with the status "ongoing"
         game_record = await insert_game(status="ongoing")
         game.game_id = game_record["game_id"]  # Store the game_id in the game instance
         return {"message": "Game started successfully", "game_id": game_record["game_id"], "start_time": game_record["start_time"]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
     
 @app.get("/game/state")
 async def get_game_state():
@@ -108,7 +122,6 @@ async def play_card(play_card_request: PlayCardRequest):
     # Validate if player has the card they want to play
     if card not in player.cards:
         raise HTTPException(status_code=400, detail="Player does not have that card")
-
 
     # Check if there is a card on the table
     if game.table:
@@ -238,30 +251,78 @@ async def play_card(play_card_request: PlayCardRequest):
         "table": game.table
     }
 
-@app.post("/game/end/{game_id}")
-async def end_game(game_id: int, winner_id: int):
+@app.get("/api/game/end/{game_id}")
+async def get_game_results(game_id: int):
     try:
-        # Update the game with the end time, duration, and winner_id
+        # Fetch the game details and winner
         query = """
-            UPDATE games
-            SET end_time = NOW(), duration = NOW() - start_time, status = 'completed', winner_id = :winner_id
-            WHERE game_id = :game_id
-            RETURNING game_id, end_time, duration, winner_id
+            SELECT winner_id, end_time, duration FROM games WHERE game_id = :game_id
         """
-        values = {"game_id": game_id, "winner_id": winner_id}
-        result = await database.fetch_one(query=query, values=values)
+        game_result = await database.fetch_one(query=query, values={"game_id": game_id})
+        if not game_result:
+            raise HTTPException(status_code=404, detail="Game not found")
 
-        # Update the player's total score and total wins
-        await update_player_score_and_wins(winner_id, 10)
+        # Fetch all player scores for the specific game
+        scores_query = """
+            SELECT player_id, score FROM game_player_scores WHERE game_id = :game_id
+        """
+        scores = await database.fetch_all(query=scores_query, values={"game_id": game_id})
+
+        # Format the scores for the response
+        player_scores = [{"username": f"Player {s['player_id']}", "score": s['score']} for s in scores]
 
         return {
-            "message": "Game ended successfully",
-            "game_id": result["game_id"],
-            "duration": result["duration"],
-            "winner_id": result["winner_id"]
+            "game_id": game_id,
+            "winner": {"username": f"Player {game_result['winner_id']}", "score": 10},  # Assuming winner gets 10 points
+            "scores": player_scores
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/game/total-scores")
+async def get_total_scores():
+    try:
+        # Fetch all player total scores from the player_scores table
+        scores_query = """
+            SELECT player_id, total_score FROM player_scores WHERE player_id BETWEEN 1 AND 4
+        """
+        total_scores = await database.fetch_all(query=scores_query)
+
+        # Format the scores for the response
+        player_total_scores = [{"username": f"Player {s['player_id']}", "total_score": s['total_score']} for s in total_scores]
+
+        return {
+            "players": player_total_scores
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Update player total score and wins when the game ends
+async def update_player_total_score_and_wins(player_id: int, score: int, is_winner: bool):
+    query = """
+    INSERT INTO player_scores (player_id, total_score, total_wins)
+    VALUES (:player_id, :score, :wins)
+    ON CONFLICT (player_id)
+    DO UPDATE SET 
+        total_score = player_scores.total_score + :score,
+        total_wins = player_scores.total_wins + :wins
+    RETURNING player_id, total_score, total_wins
+    """
+    values = {"player_id": player_id, "score": score, "wins": 1 if is_winner else 0}
+    return await database.fetch_one(query=query, values=values)
+
+# Function to insert each player's score for the current game
+async def insert_game_player_score(game_id: int, player_id: int, score: int):
+    query = """
+    INSERT INTO game_player_scores (game_id, player_id, score)
+    VALUES (:game_id, :player_id, :score)
+    ON CONFLICT (game_id, player_id)
+    DO UPDATE SET 
+        score = game_player_scores.score + :score
+    """
+    values = {"game_id": game_id, "player_id": player_id, "score": score}
+    await database.execute(query=query, values=values)
+
 
 @app.get("/api/game/status/{game_id}")
 async def get_game_status(game_id: int):
@@ -278,7 +339,6 @@ async def get_game_status(game_id: int):
         raise HTTPException(status_code=404, detail="Game not found")
 
     return {"status": game_db_status["status"]}
-
 
 
 @app.get("/api/total_players")
@@ -338,7 +398,7 @@ async def end_recent_game(winner_id: int):
 
         game_id = recent_game["game_id"]
 
-        # Update the game with the end time, duration, and winner_id
+        # Update the game with the end time and winner_id
         query = """
             UPDATE games
             SET end_time = NOW(), duration = NOW() - start_time, status = 'completed', winner_id = :winner_id
@@ -348,8 +408,10 @@ async def end_recent_game(winner_id: int):
         values = {"game_id": game_id, "winner_id": winner_id}
         result = await database.fetch_one(query=query, values=values)
 
-        # Update the player's total score and total wins
-        await update_player_score_and_wins(winner_id, 10)
+        # Insert player scores into game_player_scores and update total scores
+        for player in game.players:
+            await insert_game_player_score(game_id, player.id + 1, player.points)  # Record game score
+            await update_player_total_score_and_wins(player.id + 1, player.points, player.id == winner_id - 1)  # Update total score and wins
 
         return {
             "message": "Game ended successfully",
@@ -362,6 +424,19 @@ async def end_recent_game(winner_id: int):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/top_player")
+async def get_top_player():
+    query = """
+    SELECT player_id, total_score
+    FROM player_scores
+    ORDER BY total_score DESC
+    LIMIT 1
+    """
+    top_player = await database.fetch_one(query=query)
+    if top_player:
+        return {"player_id": top_player["player_id"], "total_score": top_player["total_score"]}
+    else:
+        raise HTTPException(status_code=404, detail="No players found")
 
 
 @app.post("/game/reset")
