@@ -4,6 +4,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import StarIcon from '@mui/icons-material/Star';
 import HistoryIcon from '@mui/icons-material/History';
+import { BarChart } from '@mui/x-charts';
 
 // Static overview data for recent activity (placeholders)
 const recentActivityData = [
@@ -44,22 +45,26 @@ const AdminPage = () => {
       .then((data) => setTopPlayer(data))
       .catch((error) => console.error('Error fetching top player:', error));
 
-    // Fetch leaderboard data from the backend API
-    const fetchLeaderboard = async () => {
-      try {
-        const response = await fetch('/api/leaderboard2');
-        if (!response.ok) {
-          throw new Error('Failed to fetch leaderboard data');
+      const fetchLeaderboard = async () => {
+        try {
+          const response = await fetch('/api/leaderboard2');
+          if (!response.ok) {
+            throw new Error('Failed to fetch leaderboard data');
+          }
+          const data = await response.json();
+          setLeaderboardData(data);
+        } catch (error) {
+          console.error('Error fetching leaderboard data:', error);
         }
-        const data = await response.json();
-        setLeaderboardData(data);
-      } catch (error) {
-        console.error('Error fetching leaderboard data:', error);
-      }
-    };
-
-    fetchLeaderboard();
-  }, []);
+      };
+  
+      fetchLeaderboard();
+    }, []);
+  
+    // Prepare data for the bar chart
+    const playerNames = leaderboardData.map(entry => `Player ${entry.player_id}`);
+    const playerScores = leaderboardData.map(entry => entry.total_score);
+    const playerWins = leaderboardData.map(entry => entry.total_wins);
 
   return (
     <Box sx={{ padding: 6, backgroundColor: '#FFF3E0', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -135,20 +140,49 @@ const AdminPage = () => {
       {/* Leaderboard Section */}
       <Box sx={{ width: '100%', maxWidth: '1400px', marginBottom: 6 }}>
         <Paper elevation={4} sx={{ padding: 5, borderRadius: '16px', backgroundColor: '#FFE0B2', boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15)', textAlign: 'center' }}>
-          <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold', color: '#BF360C' }}>Leaderboard</Typography>
-          {leaderboardData.length > 0 ? (
-            leaderboardData.map((entry, index) => (
-              <Box key={entry.player_id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 2, borderBottom: index !== leaderboardData.length - 1 ? '1px solid #FF7043' : 'none', '&:hover': { backgroundColor: '#FFF8E1' } }}>
-                <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#6D4C41' }}>{`${index + 1}. Player ${entry.player_id}`}</Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Typography variant="body1" sx={{ fontWeight: 'bold', color: '#6D4C41' }}>Wins: {entry.total_wins}</Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 'bold', color: '#BF360C' }}>Score: {entry.total_score}</Typography>
-                </Box>
-              </Box>
-            ))
-          ) : (
-            <Typography variant="body1" sx={{ color: '#BF360C' }}>No leaderboard data available</Typography>
-          )}
+          <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold', color: '#BF360C' }}>
+            Leaderboard
+          </Typography>
+
+          {/* Render BarChart centered */}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center', // Center horizontally
+              alignItems: 'center', // Center vertically
+              minHeight: 400, // Adjust as needed for vertical centering
+            }}
+          >
+            {leaderboardData.length > 0 ? (
+              <BarChart
+                series={[
+                  {
+                    data: playerScores,
+                    label: 'Total Scores',
+                  },
+                  {
+                    data: playerWins,
+                    label: 'Total Wins',
+                  },
+                ]}
+                xAxis={[
+                  {
+                    data: playerNames,
+                    label: 'Players',
+                    scaleType: 'band', // Set scale type to "band" for categorical data
+                  },
+                ]}
+                height={400}
+                width={700}
+                groupPadding={0.2} // Add some space between bars
+                barCategoryGap={0.4} // Spacing between categories
+              />
+            ) : (
+              <Typography variant="body1" sx={{ color: '#BF360C' }}>
+                No leaderboard data available
+              </Typography>
+            )}
+          </Box>
         </Paper>
       </Box>
     </Box>
