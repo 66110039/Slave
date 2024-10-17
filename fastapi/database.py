@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO)
 # Database connection details
 POSTGRES_USER = "temp"
 POSTGRES_PASSWORD = "temp"
-POSTGRES_DB = "postgres"
+POSTGRES_DB = "advcompro"
 POSTGRES_HOST = "db"
 
 # Define the async database URL for PostgreSQL
@@ -120,3 +120,11 @@ async def insert_game_player_score(game_id: int, player_id: int, score: int):
     values = {"game_id": game_id, "player_id": player_id, "score": score}
     await database.execute(query=query, values=values)
 
+# Function to retrieve player scores ordered by total wins (most wins first)
+async def get_leaderboard_by_wins():
+    query = """
+    SELECT player_id, total_wins, total_score 
+    FROM player_scores 
+    ORDER BY total_wins DESC
+    """
+    return await database.fetch_all(query=query)

@@ -5,17 +5,11 @@ import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import StarIcon from '@mui/icons-material/Star';
 import HistoryIcon from '@mui/icons-material/History';
 
-// Static overview data for other cards (placeholders)
+// Static overview data for recent activity (placeholders)
 const recentActivityData = [
   { player: 'Player2', activity: 'Joined a game', timestamp: '2 hours ago' },
   { player: 'Player3', activity: 'Reached top score', timestamp: '1 day ago' },
   { player: 'Player4', activity: 'Logged in', timestamp: '3 days ago' },
-];
-
-const leaderboardData = [
-  { player: 'Player1', wins: 50, score: 200 },
-  { player: 'Player2', wins: 45, score: 180 },
-  { player: 'Player3', wins: 40, score: 170 },
 ];
 
 const AdminPage = () => {
@@ -23,6 +17,7 @@ const AdminPage = () => {
   const [recentUsersCount, setRecentUsersCount] = useState(0);
   const [totalGames, setTotalGames] = useState(0); // New state for total games
   const [topPlayer, setTopPlayer] = useState({ player_id: '', total_score: 0 }); // State for top player
+  const [leaderboardData, setLeaderboardData] = useState([]);
 
   useEffect(() => {
     // Fetch total players from the backend API
@@ -40,14 +35,30 @@ const AdminPage = () => {
     // Fetch total games count from the backend API
     fetch('/api/total_games')
       .then((response) => response.json())
-      .then((data) => setTotalGames(data.total_games))  // Update totalGames state
+      .then((data) => setTotalGames(data.total_games))
       .catch((error) => console.error('Error fetching total games:', error));
 
     // Fetch top player from the backend API
     fetch('/api/top_player')
       .then((response) => response.json())
-      .then((data) => setTopPlayer(data)) // Update top player state
+      .then((data) => setTopPlayer(data))
       .catch((error) => console.error('Error fetching top player:', error));
+
+    // Fetch leaderboard data from the backend API
+    const fetchLeaderboard = async () => {
+      try {
+        const response = await fetch('/api/leaderboard2');
+        if (!response.ok) {
+          throw new Error('Failed to fetch leaderboard data');
+        }
+        const data = await response.json();
+        setLeaderboardData(data);
+      } catch (error) {
+        console.error('Error fetching leaderboard data:', error);
+      }
+    };
+
+    fetchLeaderboard();
   }, []);
 
   return (
@@ -58,22 +69,7 @@ const AdminPage = () => {
       <Grid container spacing={4} sx={{ width: '100%', maxWidth: '1400px', mb: 6 }}>
         {/* Total Players Card */}
         <Grid item xs={12} sm={6} md={3}>
-          <Paper
-            elevation={4}
-            sx={{
-              width: '280px',
-              height: '200px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: '16px',
-              backgroundColor: '#FFE0B2',
-              boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15)',
-              padding: 2,
-              margin: '0 auto',
-            }}
-          >
+          <Paper elevation={4} sx={{ width: '280px', height: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', borderRadius: '16px', backgroundColor: '#FFE0B2', boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15)', padding: 2, margin: '0 auto' }}>
             <PeopleIcon sx={{ fontSize: 80, mb: 1 }} />
             <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#E65100', mt: 1, textAlign: 'center' }}>
               {totalPlayers}
@@ -86,25 +82,10 @@ const AdminPage = () => {
 
         {/* Total Games Card */}
         <Grid item xs={12} sm={6} md={3}>
-          <Paper
-            elevation={4}
-            sx={{
-              width: '280px',
-              height: '200px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: '16px',
-              backgroundColor: '#FFE0B2',
-              boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15)',
-              padding: 2,
-              margin: '0 auto',
-            }}
-          >
+          <Paper elevation={4} sx={{ width: '280px', height: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', borderRadius: '16px', backgroundColor: '#FFE0B2', boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15)', padding: 2, margin: '0 auto' }}>
             <SportsEsportsIcon sx={{ fontSize: 80, mb: 1 }} />
             <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#E65100', mt: 1, textAlign: 'center' }}>
-              {totalGames}  {/* Display total games */}
+              {totalGames}
             </Typography>
             <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#BF360C', textAlign: 'center' }}>
               Total Games
@@ -114,50 +95,20 @@ const AdminPage = () => {
 
         {/* Top Player Card */}
         <Grid item xs={12} sm={6} md={3}>
-          <Paper
-            elevation={4}
-            sx={{
-              width: '280px',
-              height: '200px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: '16px',
-              backgroundColor: '#FFE0B2',
-              boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15)',
-              padding: 2,
-              margin: '0 auto',
-            }}
-          >
+          <Paper elevation={4} sx={{ width: '280px', height: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', borderRadius: '16px', backgroundColor: '#FFE0B2', boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15)', padding: 2, margin: '0 auto' }}>
             <StarIcon sx={{ fontSize: 80, mb: 1 }} />
             <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#E65100', mt: 1, textAlign: 'center' }}>
-              Player {topPlayer.player_id}  {/* Display top player ID */}
+              Player {topPlayer.player_id}
             </Typography>
             <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#BF360C', textAlign: 'center' }}>
-              Score: {topPlayer.total_score}  {/* Display top player score */}
+              Score: {topPlayer.total_score}
             </Typography>
           </Paper>
         </Grid>
 
         {/* Recent Activity Card */}
         <Grid item xs={12} sm={6} md={3}>
-          <Paper
-            elevation={4}
-            sx={{
-              width: '280px',
-              height: '200px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: '16px',
-              backgroundColor: '#FFE0B2',
-              boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15)',
-              padding: 2,
-              margin: '0 auto',
-            }}
-          >
+          <Paper elevation={4} sx={{ width: '280px', height: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', borderRadius: '16px', backgroundColor: '#FFE0B2', boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15)', padding: 2, margin: '0 auto' }}>
             <HistoryIcon sx={{ fontSize: 80, mb: 1 }} />
             <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#E65100', mt: 1, textAlign: 'center' }}>
               {recentUsersCount} New Players
@@ -182,18 +133,22 @@ const AdminPage = () => {
       </Box>
 
       {/* Leaderboard Section */}
-      <Box sx={{ width: '100%', maxWidth: '1400px' }}>
+      <Box sx={{ width: '100%', maxWidth: '1400px', marginBottom: 6 }}>
         <Paper elevation={4} sx={{ padding: 5, borderRadius: '16px', backgroundColor: '#FFE0B2', boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15)', textAlign: 'center' }}>
-          <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold', color: '#BF360C' }}>Top Players</Typography>
-          {leaderboardData.map((entry, index) => (
-            <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 2, borderBottom: index !== leaderboardData.length - 1 ? '1px solid #FF7043' : 'none', '&:hover': { backgroundColor: '#FFF8E1' } }}>
-              <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#6D4C41' }}>{`${index + 1}. ${entry.player}`}</Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Typography variant="body1" sx={{ fontWeight: 'bold', color: '#6D4C41' }}>Wins: {entry.wins}</Typography>
-                <Typography variant="body1" sx={{ fontWeight: 'bold', color: '#BF360C' }}>Score: {entry.score}</Typography>
+          <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold', color: '#BF360C' }}>Leaderboard</Typography>
+          {leaderboardData.length > 0 ? (
+            leaderboardData.map((entry, index) => (
+              <Box key={entry.player_id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 2, borderBottom: index !== leaderboardData.length - 1 ? '1px solid #FF7043' : 'none', '&:hover': { backgroundColor: '#FFF8E1' } }}>
+                <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#6D4C41' }}>{`${index + 1}. Player ${entry.player_id}`}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Typography variant="body1" sx={{ fontWeight: 'bold', color: '#6D4C41' }}>Wins: {entry.total_wins}</Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 'bold', color: '#BF360C' }}>Score: {entry.total_score}</Typography>
+                </Box>
               </Box>
-            </Box>
-          ))}
+            ))
+          ) : (
+            <Typography variant="body1" sx={{ color: '#BF360C' }}>No leaderboard data available</Typography>
+          )}
         </Paper>
       </Box>
     </Box>

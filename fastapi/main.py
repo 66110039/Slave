@@ -1,6 +1,6 @@
 ### This is all my main.py code 
 from fastapi import FastAPI, HTTPException 
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import random
@@ -9,6 +9,7 @@ from database import *
 from routes.users import router
 from routes.leaderboard import router as leaderboard_router
 from typing import List
+
 
 app = FastAPI()
 
@@ -438,7 +439,21 @@ async def get_top_player():
     else:
         raise HTTPException(status_code=404, detail="No players found")
 
-
+@app.get("/api/leaderboard2")
+async def get_leaderboard():
+    query = """
+    SELECT player_id, total_wins, total_score
+    FROM player_scores
+    ORDER BY total_wins DESC
+    """
+    leaderboard_records = await database.fetch_all(query=query)
+    
+    if leaderboard_records:
+        leaderboard = [{"player_id": record["player_id"], "total_wins": record["total_wins"], "total_score": record["total_score"]} for record in leaderboard_records]
+        return leaderboard
+    else:
+        raise HTTPException(status_code=404, detail="No leaderboard entries found")
+    
 @app.post("/game/reset")
 async def reset_game():
     game.reset_game()  # This resets the game

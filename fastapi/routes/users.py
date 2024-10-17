@@ -104,3 +104,5 @@ async def login_user(user: UserLogin):
     except Exception as e:
         logging.error(f"Error during login: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+    
+
