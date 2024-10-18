@@ -10,7 +10,7 @@ import { BarChart } from '@mui/x-charts';
 const recentActivityData = [
   { player: 'Player2', activity: 'Joined a game', timestamp: '2 hours ago' },
   { player: 'Player3', activity: 'Reached top score', timestamp: '1 day ago' },
-  { player: 'Player4', activity: 'Logged in', timestamp: '3 days ago' },
+  { player: 'Player4', activity: 'Joined a game', timestamp: '15 minutes ago' },
 ];
 
 const AdminPage = () => {
@@ -127,7 +127,7 @@ const AdminPage = () => {
 
       {/* Recent Player Activity Section */}
       <Box sx={{ width: '100%', maxWidth: '1400px', backgroundColor: '#FFE0B2', padding: 4, borderRadius: '16px', mb: 6, textAlign: 'center' }}>
-        <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#BF360C', mb: 3 }}>Recent Player Activity</Typography>
+        <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#BF360C', mb: 3 }}>Recent Players Activity</Typography>
         {recentActivityData.map((activity, index) => (
           <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
             <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#6D4C41' }}>{activity.player}</Typography>
