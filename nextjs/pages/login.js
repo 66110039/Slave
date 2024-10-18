@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Typography, TextField, Button, Snackbar, Alert } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
+import { useRouter } from "next/router";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -9,6 +10,15 @@ export default function Login() {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const router = useRouter();
+
+  useEffect(() => {
+    // Check if the user is already logged in by checking local storage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      router.push("/"); // Redirect to home if logged in
+    }
+  }, []);
 
   const handleSnackbarClose = () => {
     setOpenSnackbar(false);
@@ -40,13 +50,22 @@ export default function Login() {
         throw new Error(errorData.detail || "Login failed");
       }
 
+      const data = await response.json();
+      console.log("Login successful:", data);
+
+      // Store user information in local storage
+      localStorage.setItem("user", JSON.stringify(data));
+
       setSnackbarMessage("Login successful!");
       setSnackbarSeverity("success");
       setOpenSnackbar(true);
 
-      // Navigate to the next page after successful login
-      window.location.href = "/";
+      // Redirect to the homepage after successful login
+      setTimeout(() => {
+        router.push("/");
+      }, 2000);
     } catch (error) {
+      console.error("Login error:", error);
       setSnackbarMessage(error.message);
       setSnackbarSeverity("error");
       setOpenSnackbar(true);
