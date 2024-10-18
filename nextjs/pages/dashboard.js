@@ -68,7 +68,7 @@ const AdminPage = () => {
 
   return (
     <Box sx={{ padding: 6, backgroundColor: '#FFF3E0', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <Typography variant="h3" sx={{ mb: 6, fontWeight: 'bold', color: '#BF360C', textAlign: 'center' }}>Admin Dashboard</Typography>
+      <Typography variant="h3" sx={{ mb: 6, fontWeight: 'bold', color: '#BF360C', textAlign: 'center' }}>Dashboard</Typography>
 
       {/* Overview Cards */}
       <Grid container spacing={4} sx={{ width: '100%', maxWidth: '1400px', mb: 6 }}>
