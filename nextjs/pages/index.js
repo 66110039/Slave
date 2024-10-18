@@ -254,17 +254,42 @@ export default function HomePage() {
           </Typography>
         </Box>
         <Box sx={{ textAlign: "center" }}>
-          <HistoryIcon sx={{ fontSize: 50, color: "#FF7043" }} />{" "}
-          {/* New icon for Game History */}
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: "bold", marginTop: 1, color: "#E65100" }}>
-            Game History
-          </Typography>
-          <Typography variant="body2" sx={{ color: "#5D4037" }}>
-            Review outcomes of past games and learn from history.
-          </Typography>
-        </Box>
+  <HistoryIcon sx={{ fontSize: 50, color: "#FF7043" }} />
+  <Typography
+    variant="h6"
+    sx={{ fontWeight: "bold", marginTop: 1, color: "#E65100" }}
+  >
+    Game History
+  </Typography>
+  <Typography variant="body2" sx={{ color: "#5D4037" }}>
+    Review outcomes of past games and learn from history.
+  </Typography>
+
+  {/* Button with enhanced styling */}
+  <Button
+    variant="contained"
+    sx={{
+      marginTop: 2,
+      backgroundColor: "#FF7043", // Matching button color
+      color: "#FFFFFF", // White text
+      padding: "12px 24px", // Adjust padding for a better fit
+      borderRadius: "24px", // Rounded corners to match the image
+      fontWeight: "bold", // Bold text
+      textTransform: "uppercase", // Uppercase text
+      boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)", // Subtle shadow
+      transition: "transform 0.3s ease", // Smooth transition
+      "&:hover": {
+        backgroundColor: "#E65100", // Slightly darker on hover
+        transform: "scale(1.05)", // Scale effect on hover
+        boxShadow: "0px 8px 12px rgba(0, 0, 0, 0.2)", // Enhanced shadow on hover
+      },
+    }}
+    onClick={() => router.push("/GameHistory")}
+  >
+    View Game History
+  </Button>
+</Box>
+
       </Box>
       {/* Enhanced Top Players Section */}
       <Box
