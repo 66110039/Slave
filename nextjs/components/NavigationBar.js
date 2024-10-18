@@ -1,14 +1,7 @@
 import * as React from "react";
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
-  IconButton,
-  Box,
-} from "@mui/material";
+import { AppBar, Toolbar, Typography, Button, IconButton, Box } from "@mui/material";
 import { useRouter } from "next/router";
-import HomeIcon from "@mui/icons-material/Home"; // Home icon for navigation
+import HomeIcon from "@mui/icons-material/Home";
 import { styled } from "@mui/system"; // For custom styles
 
 // Styled button for theme consistency
@@ -19,7 +12,7 @@ const StyledButton = styled(Button)({
   padding: "8px 16px",
   marginRight: "10px",
   "&:hover": {
-    backgroundColor: "#FFD54F", // Hover effect with lighter shade
+    backgroundColor: "#FFD54F",
     transform: "scale(1.05)",
     boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.15)",
   },
@@ -27,30 +20,51 @@ const StyledButton = styled(Button)({
 
 const NavigationLayout = ({ children }) => {
   const router = useRouter();
+  const [user, setUser] = React.useState(null);
+
+  React.useEffect(() => {
+    try {
+      // Check if user is logged in and parse the data from localStorage
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+        if (parsedUser?.username) {
+          setUser(parsedUser); // Set user state if valid user data exists
+        } else {
+          // Clear invalid data if found in localStorage
+          console.warn("Invalid user data found. Clearing localStorage.");
+          localStorage.removeItem("user");
+        }
+      }
+    } catch (error) {
+      console.error("Failed to parse user data:", error);
+      localStorage.removeItem("user"); // Clear corrupted data
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user"); // Clear user from local storage
+    setUser(null); // Update state to reflect logout
+    router.push("/login"); // Redirect to login page
+  };
 
   return (
     <>
-      {/* Updated AppBar with new background color and styles */}
       <AppBar
         position="sticky"
-        sx={{
-          backgroundColor: "#FFA726",
-          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
-        }}
+        sx={{ backgroundColor: "#FFA726", boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)" }}
       >
         <Toolbar sx={{ position: "relative" }}>
-          {/* Home Button with Home Icon */}
           <IconButton onClick={() => router.push("/")} sx={{ color: "#ffffff" }}>
             <HomeIcon fontSize="large" />
           </IconButton>
 
-          {/* Application Name or Logo (Optional) */}
           <Typography
             variant="h5"
             sx={{
               position: "absolute",
               left: "50%",
-              transform: "translateX(-50%)", // Center horizontally
+              transform: "translateX(-50%)",
               fontSize: "22px",
               fontWeight: "bold",
               color: "#ffffff",
@@ -61,19 +75,24 @@ const NavigationLayout = ({ children }) => {
             Slave Card Game
           </Typography>
 
-          {/* Register and Login Buttons with updated styles */}
           <Box sx={{ marginLeft: "auto" }}>
-            <StyledButton onClick={() => router.push("/register")}>
-              Register
-            </StyledButton>
-            <StyledButton onClick={() => router.push("/login")}>
-              Login
-            </StyledButton>
+            {user ? (
+              <>
+                <Typography variant="body1" sx={{ color: "#FFF", marginRight: "10px" }}>
+                  Welcome, {user.username}
+                </Typography>
+                <StyledButton onClick={handleLogout}>Logout</StyledButton>
+              </>
+            ) : (
+              <>
+                <StyledButton onClick={() => router.push("/register")}>Register</StyledButton>
+                <StyledButton onClick={() => router.push("/login")}>Login</StyledButton>
+              </>
+            )}
           </Box>
         </Toolbar>
       </AppBar>
 
-      {/* Main content area */}
       <main>{children}</main>
     </>
   );
