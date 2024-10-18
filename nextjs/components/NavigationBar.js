@@ -1,8 +1,10 @@
 import * as React from "react";
-import { AppBar, Toolbar, Typography, Button, IconButton, Box } from "@mui/material";
+import { 
+  AppBar, Toolbar, Typography, Button, IconButton, Box, Avatar, Menu, MenuItem 
+} from "@mui/material";
 import { useRouter } from "next/router";
 import HomeIcon from "@mui/icons-material/Home";
-import { styled } from "@mui/system"; // For custom styles
+import { styled } from "@mui/system";
 
 // Styled button for theme consistency
 const StyledButton = styled(Button)({
@@ -10,7 +12,7 @@ const StyledButton = styled(Button)({
   backgroundColor: "#FFE0B2",
   borderRadius: "12px",
   padding: "8px 16px",
-  marginRight: "10px",
+  margin: "0 5px",
   "&:hover": {
     backgroundColor: "#FFD54F",
     transform: "scale(1.05)",
@@ -21,31 +23,35 @@ const StyledButton = styled(Button)({
 const NavigationLayout = ({ children }) => {
   const router = useRouter();
   const [user, setUser] = React.useState(null);
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
+  // Load user from localStorage and update state
   React.useEffect(() => {
-    try {
-      // Check if user is logged in and parse the data from localStorage
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        if (parsedUser?.username) {
-          setUser(parsedUser); // Set user state if valid user data exists
-        } else {
-          // Clear invalid data if found in localStorage
-          console.warn("Invalid user data found. Clearing localStorage.");
-          localStorage.removeItem("user");
-        }
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      if (parsedUser?.username) {
+        setUser(parsedUser);
       }
-    } catch (error) {
-      console.error("Failed to parse user data:", error);
-      localStorage.removeItem("user"); // Clear corrupted data
     }
-  }, []);
+  }, [router.asPath]); // Refresh the component on route change
 
   const handleLogout = () => {
-    localStorage.removeItem("user"); // Clear user from local storage
-    setUser(null); // Update state to reflect logout
-    router.push("/login"); // Redirect to login page
+    localStorage.removeItem("user");
+    setUser(null);
+    router.push("/login");
+  };
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLoginSuccess = () => {
+    router.replace(router.asPath); // Refresh the page to update navigation bar
   };
 
   return (
@@ -75,13 +81,25 @@ const NavigationLayout = ({ children }) => {
             Slave Card Game
           </Typography>
 
-          <Box sx={{ marginLeft: "auto" }}>
+          <Box sx={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
             {user ? (
               <>
+                <Avatar
+                  sx={{ marginRight: "10px", cursor: "pointer" }}
+                  onClick={handleMenuOpen}
+                  alt={user.username}
+                  src="/static/images/avatar/1.jpg" // Placeholder image
+                />
                 <Typography variant="body1" sx={{ color: "#FFF", marginRight: "10px" }}>
                   Welcome, {user.username}
                 </Typography>
-                <StyledButton onClick={handleLogout}>Logout</StyledButton>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={handleMenuClose}
+                >
+                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                </Menu>
               </>
             ) : (
               <>
