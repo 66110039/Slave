@@ -136,3 +136,13 @@ async def get_leaderboard_by_wins():
     ORDER BY total_wins DESC
     """
     return await database.fetch_all(query=query)
+
+# Function to insert game history
+async def insert_game_history(game_id: int, player_id: int, score: int, win: bool):
+    query = """
+    INSERT INTO game_history (game_id, player_id, score, win)
+    VALUES (:game_id, :player_id, :score, :win)
+    RETURNING history_id, game_id, player_id, score, win
+    """
+    values = {"game_id": game_id, "player_id": player_id, "score": score, "win": win}
+    return await database.fetch_one(query=query, values=values)

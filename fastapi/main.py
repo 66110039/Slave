@@ -413,6 +413,8 @@ async def end_recent_game(winner_id: int):
         for player in game.players:
             await insert_game_player_score(game_id, player.id + 1, player.points)  # Record game score
             await update_player_total_score_and_wins(player.id + 1, player.points, player.id == winner_id - 1)  # Update total score and wins
+            await insert_game_history(game_id, player.id + 1, player.points, player.id + 1 == winner_id)
+
 
         return {
             "message": "Game ended successfully",
@@ -453,7 +455,32 @@ async def get_leaderboard():
         return leaderboard
     else:
         raise HTTPException(status_code=404, detail="No leaderboard entries found")
-    
+
+@app.get("/api/game/history")
+async def get_game_history():
+    query = """
+    SELECT gh.history_id, g.game_id, gh.player_id, gh.score, gh.win
+    FROM game_history gh
+    JOIN games g ON gh.game_id = g.game_id
+    ORDER BY g.start_time DESC
+    """
+    history_records = await database.fetch_all(query=query)
+
+    if history_records:
+        history = [
+            {
+                "history_id": record["history_id"],
+                "game_id": record["game_id"],
+                "player_id": record["player_id"],
+                "score": record["score"],
+                "win": record["win"],
+            }
+            for record in history_records
+        ]
+        return history
+    else:
+        raise HTTPException(status_code=404, detail="No game history found")
+
 @app.post("/game/reset")
 async def reset_game():
     game.reset_game()  # This resets the game
