@@ -1,5 +1,3 @@
-# users.py
-
 import logging
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
@@ -82,27 +80,32 @@ async def login_user(user: UserLogin):
     try:
         # Fetch user from the database
         db_user = await get_user_by_email(user.email, user.password_hash)
-      
+
         if db_user is None:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=401, detail="Invalid email or password")
 
         # Update last_login field after successful login
         await update_last_login(db_user["user_id"])
 
+        # Fetch the updated last_login value from the database
+        updated_user = await get_user_by_email(user.email, user.password_hash)
+
         # If login is successful, return user info (omit password hash)
         response = {
-            "user_id": db_user["user_id"],
-            "username": db_user["username"],
-            "email": db_user["email"],
-            "created_at": db_user["created_at"],
-            "last_login": datetime.now(timezone.utc)  # Use datetime.now with timezone set to UTC
+            "user_id": updated_user["user_id"],
+            "username": updated_user["username"],
+            "email": updated_user["email"],
+            "created_at": updated_user["created_at"],
+            "last_login": updated_user["last_login"],  # Ensure correct last_login value is returned
         }
 
-        logging.info(f"Login successful for user: {db_user['username']}")
+        logging.info(f"Login successful for user: {updated_user['username']}")
         return response
+
+    except HTTPException as e:
+        logging.warning(f"Login failed: {str(e)}")
+        raise e  # Raise the original HTTPException
 
     except Exception as e:
         logging.error(f"Error during login: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
-    
-
