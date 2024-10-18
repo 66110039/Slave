@@ -39,12 +39,10 @@ class UserLogin(BaseModel):
 # Endpoint to create a new user
 @router.post("/users/create", response_model=User)
 async def create_user(user: UserCreate):
-    # Check if the username already exists
     existing_user = await get_user(user.username)
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already exists")
 
-    # Insert the new user
     result = await insert_user(user.username, user.password_hash, user.email)
     if result is None:
         raise HTTPException(status_code=400, detail="Error creating user")
@@ -78,25 +76,22 @@ async def delete_user_endpoint(user_id: int):
 @router.post("/users/login")
 async def login_user(user: UserLogin):
     try:
-        # Fetch user from the database
         db_user = await get_user_by_email(user.email, user.password_hash)
-
         if db_user is None:
             raise HTTPException(status_code=401, detail="Invalid email or password")
 
-        # Update last_login field after successful login
         await update_last_login(db_user["user_id"])
 
-        # Fetch the updated last_login value from the database
         updated_user = await get_user_by_email(user.email, user.password_hash)
 
-        # If login is successful, return user info (omit password hash)
+        # Prepare response to include success flag
         response = {
             "user_id": updated_user["user_id"],
             "username": updated_user["username"],
             "email": updated_user["email"],
             "created_at": updated_user["created_at"],
-            "last_login": updated_user["last_login"],  # Ensure correct last_login value is returned
+            "last_login": updated_user["last_login"],
+            "login_success": True  # Add this to trigger UI updates
         }
 
         logging.info(f"Login successful for user: {updated_user['username']}")
@@ -104,7 +99,7 @@ async def login_user(user: UserLogin):
 
     except HTTPException as e:
         logging.warning(f"Login failed: {str(e)}")
-        raise e  # Raise the original HTTPException
+        raise e
 
     except Exception as e:
         logging.error(f"Error during login: {str(e)}")
