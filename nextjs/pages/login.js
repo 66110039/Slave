@@ -166,6 +166,19 @@ export default function Login() {
         >
           {loading ? "Logging in..." : "LOGIN"}
         </Button>
+
+        {/* New Button for Registration */}
+        <Button
+          variant="text"
+          onClick={() => router.push("/register")}
+          sx={{
+            marginTop: "20px",
+            color: "#BF360C",
+            textDecoration: "underline",
+          }}
+        >
+          Don’t have an account? Create one
+        </Button>
       </Box>
 
       <Snackbar
