@@ -53,7 +53,7 @@ class CardGame:
         for player in self.players:
             player.cards = []  # Reset the cards
             player.finished = False  # Reset finished status
-        for _ in range(2):  # Deal 13 cards to each player
+        for _ in range(13):  # Deal 13 cards to each player
             for player in self.players:
                 if self.deck:  # Check if there are cards left in the deck
                     player.cards.append(self.deck.pop())  # Remove card from deck and give to player
