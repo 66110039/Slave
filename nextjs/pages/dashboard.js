@@ -9,7 +9,7 @@ import { BarChart } from '@mui/x-charts';
 // Static overview data for recent activity (placeholders)
 const recentActivityData = [
   { player: 'Player2', activity: 'Joined a game', timestamp: '2 hours ago' },
-  { player: 'Player3', activity: 'Reached top score', timestamp: '1 day ago' },
+  { player: 'Player1', activity: 'Reached top score', timestamp: '1 day ago' },
   { player: 'Player4', activity: 'Joined a game', timestamp: '15 minutes ago' },
 ];
 
