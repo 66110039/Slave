@@ -110,7 +110,7 @@ export default function Login() {
           LOGIN
         </Typography>
         <TextField
-          label="USERNAME"
+          label="EMAIL"
           variant="outlined"
           fullWidth
           margin="normal"
