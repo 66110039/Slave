@@ -116,10 +116,10 @@ const AdminPage = () => {
           <Paper elevation={4} sx={{ width: '280px', height: '200px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', borderRadius: '16px', backgroundColor: '#FFE0B2', boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.15)', padding: 2, margin: '0 auto' }}>
             <HistoryIcon sx={{ fontSize: 80, mb: 1 }} />
             <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#E65100', mt: 1, textAlign: 'center' }}>
-              {recentUsersCount} New Players
+              {recentUsersCount} New Users 
             </Typography>
             <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#BF360C', textAlign: 'center' }}>
-              Register this
+              Register this week
             </Typography>
           </Paper>
         </Grid>
